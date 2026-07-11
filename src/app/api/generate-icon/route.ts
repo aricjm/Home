@@ -183,7 +183,7 @@ export async function POST(req: Request) {
     }
 
     // Call Google Gemini Developer API
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
     
     const promptText = `You are a professional web UI designer.
 Generate a clean, modern, minimalist custom vector SVG icon for:
