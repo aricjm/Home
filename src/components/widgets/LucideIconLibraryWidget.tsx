@@ -6,22 +6,22 @@ import { Search, Copy, Check } from "lucide-react";
 
 // List of popular icons to display in the library
 const POPULAR_ICONS = [
-  "LayoutDashboard", "Mail", "Calendar", "ListTodo", "Settings", 
-  "ChevronLeft", "ChevronRight", "Menu", "X", "Bell", 
-  "Search", "CloudRain", "Trophy", "Link2", "FileText", 
-  "User", "LogOut", "Activity", "Plus", "Trash2", 
-  "ExternalLink", "ShieldAlert", "Star", "Heart", "Home", 
-  "Play", "Pause", "Volume2", "VolumeX", "Wifi", 
-  "Battery", "Clock", "MapPin", "CalendarRange", "CheckCircle2", 
-  "XCircle", "Database", "Key", "Globe", "Camera", 
-  "Compass", "DollarSign", "Eye", "EyeOff", "Folder", 
-  "Github", "Image", "Lock", "Unlock", "Moon", 
-  "Sun", "Phone", "RefreshCw", "Share2", "ShoppingBag", 
-  "ShoppingCart", "Sliders", "Sparkles", "Terminal", "ThumbsUp", 
-  "ThumbsDown", "Upload", "Download", "Video", "Zap", 
-  "AlertCircle", "HelpCircle", "Info", "Filter", "ArrowUp", 
-  "ArrowDown", "ArrowLeft", "ArrowRight", "BookOpen", "Briefcase", 
-  "Code", "CreditCard", "Cpu", "Layers", "Monitor", 
+  "LayoutDashboard", "Mail", "Calendar", "ListTodo", "Settings",
+  "ChevronLeft", "ChevronRight", "Menu", "X", "Bell",
+  "Search", "CloudRain", "Trophy", "Link2", "FileText",
+  "User", "LogOut", "Activity", "Plus", "Trash2",
+  "ExternalLink", "ShieldAlert", "Star", "Heart", "Home",
+  "Play", "Pause", "Volume2", "VolumeX", "Wifi",
+  "Battery", "Clock", "MapPin", "CalendarRange", "CheckCircle2",
+  "XCircle", "Database", "Key", "Globe", "Camera",
+  "Compass", "DollarSign", "Eye", "EyeOff", "Folder",
+  "Github", "Image", "Lock", "Unlock", "Moon",
+  "Sun", "Phone", "RefreshCw", "Share2", "ShoppingBag",
+  "ShoppingCart", "Sliders", "Sparkles", "Terminal", "ThumbsUp",
+  "ThumbsDown", "Upload", "Download", "Video", "Zap",
+  "AlertCircle", "HelpCircle", "Info", "Filter", "ArrowUp",
+  "ArrowDown", "ArrowLeft", "ArrowRight", "BookOpen", "Briefcase",
+  "Code", "CreditCard", "Cpu", "Layers", "Monitor",
   "Smartphone", "Laptop", "Server", "HardDrive"
 ];
 
@@ -66,13 +66,13 @@ export default function LucideIconLibraryWidget() {
       </div>
 
       <div className="flex-1 overflow-x-auto">
-        <table className="w-full text-left border-collapse">
+        <table className="w-full text-left border-collapse table-fixed">
           <thead>
             <tr className="border-b border-border/80 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              <th className="pb-3 pl-2 w-16">Preview</th>
-              <th className="pb-3">Icon Name</th>
-              <th className="pb-3">React / Next.js Component Code</th>
-              <th className="pb-3 pr-2 w-20 text-center">Action</th>
+              <th className="pb-3 pl-2 w-[24%]">Preview</th>
+              <th className="pb-3 w-[14%]">Icon Name</th>
+              <th className="pb-3 w-[40%]">React / Next.js Component Code</th>
+              <th className="pb-3 pr-2 w-[10%] text-center">Action</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border/40">
@@ -91,8 +91,8 @@ export default function LucideIconLibraryWidget() {
                 if (!IconComponent) return null;
 
                 return (
-                  <tr 
-                    key={name} 
+                  <tr
+                    key={name}
                     className="hover:bg-secondary/25 transition-colors text-sm group"
                   >
                     {/* Column 1: Icon Preview */}
@@ -118,11 +118,10 @@ export default function LucideIconLibraryWidget() {
                     <td className="py-3.5 pr-2 text-center">
                       <button
                         onClick={() => handleCopy(codeString, name)}
-                        className={`p-2 rounded-lg border transition-all ${
-                          copiedId === name
+                        className={`p-2 rounded-lg border transition-all ${copiedId === name
                             ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400"
                             : "bg-secondary hover:bg-muted border-border text-muted-foreground hover:text-white"
-                        }`}
+                          }`}
                         title="Copy Component Code"
                       >
                         {copiedId === name ? (
@@ -139,7 +138,7 @@ export default function LucideIconLibraryWidget() {
           </tbody>
         </table>
       </div>
-      
+
       <div className="mt-4 pt-3 border-t border-border/50 text-[10px] text-muted-foreground font-mono flex justify-between items-center">
         <span>Showing {filteredIcons.length} of {POPULAR_ICONS.length} library icons</span>
         <span>Imports from 'lucide-react'</span>
