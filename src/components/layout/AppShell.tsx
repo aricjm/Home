@@ -47,89 +47,66 @@ export default function AppShell() {
 
   // Render sidebar contents dynamically based on active top tab
   const renderSidebarContent = () => {
+    const containerClasses = sidebarCollapsed ? "flex flex-col items-center gap-2 p-2" : "flex flex-col gap-2 p-4";
+    const buttonClasses = sidebarCollapsed 
+      ? "flex items-center justify-center rounded-lg p-2.5 text-foreground hover:bg-muted transition-all hover:text-accent shrink-0" 
+      : "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-foreground hover:bg-muted transition-all";
+
     switch (activeTab) {
       case "dashboard":
         return (
-          <div className="flex flex-col gap-6 p-4">
-            <div className="flex flex-col gap-2">
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Quick Access
-              </h3>
-              <div className="space-y-1">
-                <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-foreground hover:bg-muted transition-colors">
-                  <CloudRain className="h-4 w-4 text-accent" />
-                  {!sidebarCollapsed && <span>Weather Panel</span>}
-                </button>
-                <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-foreground hover:bg-muted transition-colors">
-                  <Trophy className="h-4 w-4 text-accent" />
-                  {!sidebarCollapsed && <span>Sports Scores</span>}
-                </button>
-                <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-foreground hover:bg-muted transition-colors">
-                  <Link2 className="h-4 w-4 text-accent" />
-                  {!sidebarCollapsed && <span>Favorite Links</span>}
-                </button>
-              </div>
-            </div>
+          <div className={containerClasses}>
+            <button className={buttonClasses}>
+              <CloudRain className="h-4 w-4 text-accent shrink-0" />
+              {!sidebarCollapsed && <span>Weather Panel</span>}
+            </button>
+            <button className={buttonClasses}>
+              <Trophy className="h-4 w-4 text-accent shrink-0" />
+              {!sidebarCollapsed && <span>Sports Scores</span>}
+            </button>
+            <button className={buttonClasses}>
+              <Link2 className="h-4 w-4 text-accent shrink-0" />
+              {!sidebarCollapsed && <span>Favorite Links</span>}
+            </button>
           </div>
         );
       case "communications":
         return (
-          <div className="flex flex-col gap-6 p-4">
-            <div className="flex flex-col gap-2">
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Google Services
-              </h3>
-              <div className="space-y-1">
-                <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-foreground hover:bg-muted transition-colors">
-                  <Mail className="h-4 w-4 text-accent" />
-                  {!sidebarCollapsed && <span>Gmail Inbox</span>}
-                </button>
-                <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-foreground hover:bg-muted transition-colors">
-                  <Calendar className="h-4 w-4 text-accent" />
-                  {!sidebarCollapsed && <span>Google Calendar</span>}
-                </button>
-              </div>
-            </div>
+          <div className={containerClasses}>
+            <button className={buttonClasses}>
+              <Mail className="h-4 w-4 text-accent shrink-0" />
+              {!sidebarCollapsed && <span>Gmail Inbox</span>}
+            </button>
+            <button className={buttonClasses}>
+              <Calendar className="h-4 w-4 text-accent shrink-0" />
+              {!sidebarCollapsed && <span>Google Calendar</span>}
+            </button>
           </div>
         );
       case "workspace":
         return (
-          <div className="flex flex-col gap-6 p-4">
-            <div className="flex flex-col gap-2">
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Trackers & Tools
-              </h3>
-              <div className="space-y-1">
-                <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-foreground hover:bg-muted transition-colors">
-                  <ListTodo className="h-4 w-4 text-accent" />
-                  {!sidebarCollapsed && <span>Active Trackers</span>}
-                </button>
-                <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-foreground hover:bg-muted transition-colors">
-                  <FileText className="h-4 w-4 text-accent" />
-                  {!sidebarCollapsed && <span>Scratchpad Notes</span>}
-                </button>
-              </div>
-            </div>
+          <div className={containerClasses}>
+            <button className={buttonClasses}>
+              <ListTodo className="h-4 w-4 text-accent shrink-0" />
+              {!sidebarCollapsed && <span>Active Trackers</span>}
+            </button>
+            <button className={buttonClasses}>
+              <FileText className="h-4 w-4 text-accent shrink-0" />
+              {!sidebarCollapsed && <span>Scratchpad Notes</span>}
+            </button>
           </div>
         );
       case "settings":
         return (
-          <div className="flex flex-col gap-6 p-4">
-            <div className="flex flex-col gap-2">
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Configuration
-              </h3>
-              <div className="space-y-1">
-                <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-foreground hover:bg-muted transition-colors">
-                  <User className="h-4 w-4 text-accent" />
-                  {!sidebarCollapsed && <span>Connected Accounts</span>}
-                </button>
-                <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-foreground hover:bg-muted transition-colors">
-                  <Settings className="h-4 w-4 text-accent" />
-                  {!sidebarCollapsed && <span>API Connections</span>}
-                </button>
-              </div>
-            </div>
+          <div className={containerClasses}>
+            <button className={buttonClasses}>
+              <User className="h-4 w-4 text-accent shrink-0" />
+              {!sidebarCollapsed && <span>Connected Accounts</span>}
+            </button>
+            <button className={buttonClasses}>
+              <Settings className="h-4 w-4 text-accent shrink-0" />
+              {!sidebarCollapsed && <span>API Connections</span>}
+            </button>
           </div>
         );
     }
@@ -285,22 +262,37 @@ export default function AppShell() {
             sidebarCollapsed ? "w-16" : "w-64"
           } hidden md:flex`}
         >
+          {/* Sidebar Header / Toggle */}
+          <div className={`p-4 border-b border-border/50 flex items-center ${
+            sidebarCollapsed ? "justify-center" : "justify-between gap-3"
+          } shrink-0`}>
+            <button
+              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+              className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground shrink-0 transition-colors"
+              aria-label="Toggle Sidebar"
+            >
+              {sidebarCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+            </button>
+            {!sidebarCollapsed && (
+              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground truncate select-none">
+                {activeTab === "dashboard" && "Quick Access"}
+                {activeTab === "communications" && "Google Services"}
+                {activeTab === "workspace" && "Trackers & Tools"}
+                {activeTab === "settings" && "Configuration"}
+              </span>
+            )}
+          </div>
+
           {/* Sidebar Content */}
           <div className="flex-1 overflow-y-auto">
             {renderSidebarContent()}
           </div>
 
-          {/* Sidebar Footer / Toggle */}
-          <div className="p-4 border-t border-border flex items-center justify-between">
+          {/* Sidebar Footer */}
+          <div className="p-4 border-t border-border flex items-center justify-between shrink-0">
             {!sidebarCollapsed && (
               <span className="text-xs text-muted-foreground font-mono">v1.0.0</span>
             )}
-            <button
-              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-              className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground ml-auto"
-            >
-              {sidebarCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
-            </button>
           </div>
         </aside>
 
