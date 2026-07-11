@@ -183,7 +183,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Name is required" }, { status: 400 });
     }
 
-    const apiKey = process.env.GEMINI_API_KEY;
+    let apiKey = process.env.GEMINI_API_KEY;
+    if (apiKey) {
+      apiKey = apiKey.trim().replace(/^["']|["']$/g, "");
+    }
 
     // Fallback immediately if API Key is not set or placeholders are used
     if (!apiKey || apiKey.includes("your-") || apiKey.trim() === "") {
