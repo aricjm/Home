@@ -10,7 +10,7 @@ const getInnerSvg = (raw: string): string => {
   return match ? match[1] : raw;
 };
 
-// Generative client-side SVG vector path maker from scratch using name, description, and seed
+// Generative client-side SVG vector path maker from scratch (fallback engine)
 const generateSVGPath = (name: string, description: string, seed: number): string => {
   const combined = `${name.trim()}_${description.trim()}_${seed}`;
 
@@ -18,29 +18,26 @@ const generateSVGPath = (name: string, description: string, seed: number): strin
   let hash = 0;
   for (let i = 0; i < combined.length; i++) {
     hash = combined.charCodeAt(i) + ((hash << 5) - hash);
-    hash = hash & hash; // Convert to 32bit integer
+    hash = hash & hash;
   }
   const absHash = Math.abs(hash);
 
-  // Helper to obtain a deterministic floating point value between min and max
   const getVal = (offset: number, min: number, max: number) => {
     const val = Math.abs(Math.sin(absHash + offset * 14.521));
     return min + val * (max - min);
   };
 
-  // Helper to obtain a deterministic integer between min and max
   const getInt = (offset: number, min: number, max: number) => {
     return Math.floor(getVal(offset, min, max + 1));
   };
 
-  const symmetry = getInt(1, 0, 2); // 0 = none/asymmetric, 1 = bilateral (crest/emblem), 2 = radial (star/flower)
+  const symmetry = getInt(1, 0, 2);
   const drawCircles = getVal(2, 0, 1) > 0.4;
   const drawLines = getVal(3, 0, 1) > 0.4;
   const numSteps = getInt(4, 3, 6);
 
   let paths: string[] = [];
 
-  // 1. Procedural outer boundary frame / circles
   if (drawCircles) {
     const boundaryMode = getInt(5, 0, 2);
     const radius = getVal(6, 6, 11).toFixed(1);
@@ -59,12 +56,9 @@ const generateSVGPath = (name: string, description: string, seed: number): strin
     }
   }
 
-  // 2. Core procedural geometry
   if (symmetry === 1) {
-    // Bilateral horizontal symmetry (e.g. Emblem, Crest, Shield, Face)
     const rightPoints: Array<{x: number; y: number}> = [];
     const numPoints = getInt(7, 3, 5);
-
     const topY = getVal(8, 3, 6);
     rightPoints.push({ x: 12, y: topY });
 
@@ -77,7 +71,6 @@ const generateSVGPath = (name: string, description: string, seed: number): strin
     const botY = getVal(11, 16.5, 21.5);
     rightPoints.push({ x: 12, y: botY });
 
-    // Draw right side of outline
     let pathString = `M 12 ${topY.toFixed(1)}`;
     for (let i = 1; i < rightPoints.length; i++) {
       const p = rightPoints[i];
@@ -93,14 +86,12 @@ const generateSVGPath = (name: string, description: string, seed: number): strin
       }
     }
 
-    // Mirror to left side
     for (let i = rightPoints.length - 2; i >= 0; i--) {
       const p = rightPoints[i];
       const mirrorX = (24 - p.x).toFixed(1);
       const curveChoice = getInt(15 + i, 0, 1);
       if (curveChoice === 0) {
         const prevP = rightPoints[i + 1];
-        const mirrorPrevX = (24 - prevP.x).toFixed(1);
         const cx1 = (24 - getVal(13 + i * 3, 13, 20)).toFixed(1);
         const cy1 = (prevP.y + (p.y - prevP.y) * 0.3).toFixed(1);
         const cx2 = (24 - getVal(14 + i * 3, 13, 20)).toFixed(1);
@@ -113,7 +104,6 @@ const generateSVGPath = (name: string, description: string, seed: number): strin
     pathString += " Z";
     paths.push(`<path d="${pathString}" />`);
 
-    // Symmetrical internal details
     if (drawLines) {
       const lineY = getVal(16, topY + 2.5, botY - 2.5).toFixed(1);
       const lineW = getVal(17, 2, 5).toFixed(1);
@@ -127,7 +117,6 @@ const generateSVGPath = (name: string, description: string, seed: number): strin
     }
 
   } else if (symmetry === 2) {
-    // Radial/axial symmetry (e.g. Star, Snowflake, Crossed Mandala, Flower)
     const petals = getInt(21, 5, 12);
     const outerR = getVal(22, 7.5, 11).toFixed(1);
     const innerR = getVal(23, 2.5, 6).toFixed(1);
@@ -152,7 +141,6 @@ const generateSVGPath = (name: string, description: string, seed: number): strin
     }
 
   } else {
-    // Asymmetric abstract geometry (e.g. Tech wave, circuit-trace, dynamic curve lines)
     const startX = getVal(25, 3, 6).toFixed(1);
     const startY = getVal(26, 4, 10).toFixed(1);
     let pathD = `M ${startX} ${startY}`;
@@ -280,30 +268,68 @@ export default function SVGIconLibraryWidget() {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  // Handle generation click
-  const handleCreate = (e: React.FormEvent) => {
+  // Handle generation click (calling AI API or procedural fallback)
+  const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newName.trim()) return;
 
+    const finalCategory = selectedAddCategory === "__NEW__" ? customCategory.trim() : selectedAddCategory.trim();
+    if (!finalCategory) return;
+
     setIsGenerating(true);
     setSeed(0);
-    setTimeout(() => {
+    try {
+      const res = await fetch("/api/generate-icon", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: newName,
+          description: newDesc,
+          category: finalCategory,
+          seed: 0
+        })
+      });
+      if (!res.ok) throw new Error("Failed to generate AI icon");
+      const resData = await res.json();
+      setPreviewSvg(getInnerSvg(resData.svg));
+    } catch (err) {
+      console.warn("AI Generation offline, using client-side procedural fallback:", err);
+      // Fallback
       const generatedPath = generateSVGPath(newName, newDesc, 0);
       setPreviewSvg(generatedPath);
+    } finally {
       setIsGenerating(false);
-    }, 1200);
+    }
   };
 
   // Retry with new seeded shape
-  const handleRetry = () => {
+  const handleRetry = async () => {
     setIsGenerating(true);
     const nextSeed = seed + 1;
     setSeed(nextSeed);
-    setTimeout(() => {
+    const finalCategory = selectedAddCategory === "__NEW__" ? customCategory.trim() : selectedAddCategory.trim();
+    try {
+      const res = await fetch("/api/generate-icon", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: newName,
+          description: newDesc,
+          category: finalCategory || "Miscellaneous",
+          seed: nextSeed
+        })
+      });
+      if (!res.ok) throw new Error("Failed to retry generate AI icon");
+      const resData = await res.json();
+      setPreviewSvg(getInnerSvg(resData.svg));
+    } catch (err) {
+      console.warn("AI Retry offline, using client-side procedural fallback:", err);
+      // Fallback
       const generatedPath = generateSVGPath(newName, newDesc, nextSeed);
       setPreviewSvg(generatedPath);
+    } finally {
       setIsGenerating(false);
-    }, 1000);
+    }
   };
 
   // Accept and commit user SVG to localStorage
