@@ -6,16 +6,24 @@ import { CUSTOM_SVGS } from "./customSVGs";
 
 export default function SVGIconLibraryWidget() {
   const [filterText, setFilterText] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All");
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const keys = Object.keys(CUSTOM_SVGS);
+  
+  // Extract unique categories dynamically and sort them
+  const categories = Array.from(
+    new Set(keys.map((key) => CUSTOM_SVGS[key].category))
+  ).sort();
+
   const filteredKeys = keys.filter((key) => {
     const item = CUSTOM_SVGS[key];
-    return (
+    const matchesCategory = selectedCategory === "All" || item.category === selectedCategory;
+    const matchesSearch =
       key.toLowerCase().includes(filterText.toLowerCase()) ||
       item.category.toLowerCase().includes(filterText.toLowerCase()) ||
-      item.desc.toLowerCase().includes(filterText.toLowerCase())
-    );
+      item.desc.toLowerCase().includes(filterText.toLowerCase());
+    return matchesCategory && matchesSearch;
   });
 
   const handleCopy = (code: string, id: string) => {
@@ -28,7 +36,7 @@ export default function SVGIconLibraryWidget() {
     <div className="bg-card border border-border rounded-2xl p-6 relative overflow-hidden transition-all duration-300 hover:border-accent/40 flex flex-col min-h-[500px]" id="svg-icon-library-root">
       <div className="absolute -right-16 -top-16 w-32 h-32 bg-accent/5 rounded-full blur-3xl pointer-events-none" id="svg-icon-library-bg-blur"></div>
 
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6" id="svg-icon-library-header">
+      <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 mb-6" id="svg-icon-library-header">
         <div id="svg-icon-library-header-text">
           <h2 className="text-lg font-semibold text-white flex items-center gap-2" id="svg-icon-library-title">
             <Sparkles className="h-5 w-5 text-accent animate-pulse" />
@@ -37,17 +45,42 @@ export default function SVGIconLibraryWidget() {
           <p className="text-xs text-muted-foreground" id="svg-icon-library-subtitle">Custom handcrafted vector SVGs built for HomeOS</p>
         </div>
 
-        {/* Filter input */}
-        <div className="relative w-full sm:w-64" id="svg-icon-library-search-container">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <input
-            id="svg-icon-library-search-input"
-            type="text"
-            placeholder="Search custom icons..."
-            value={filterText}
-            onChange={(e) => setFilterText(e.target.value)}
-            className="w-full bg-secondary border border-border text-sm rounded-lg pl-9 pr-4 py-1.5 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent text-white placeholder-muted-foreground/60 transition-all"
-          />
+        {/* Controls container (Dropdown + Search) */}
+        <div className="flex flex-col sm:flex-row gap-3 w-full xl:w-auto" id="svg-icon-library-controls">
+          {/* Category Dropdown */}
+          <div className="relative w-full sm:w-48" id="svg-icon-library-category-select-container">
+            <select
+              id="svg-icon-library-category-select"
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="w-full bg-secondary border border-border text-sm rounded-lg px-3 py-1.5 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent text-white transition-all appearance-none pr-8 cursor-pointer"
+            >
+              <option value="All" id="svg-category-option-all">All Categories</option>
+              {categories.map((cat) => (
+                <option key={cat} value={cat} id={`svg-category-option-${cat.toLowerCase().replace(/[^a-z0-9]/g, "-")}`}>
+                  {cat}
+                </option>
+              ))}
+            </select>
+            <div className="absolute inset-y-0 right-0 flex items-center pr-2.5 pointer-events-none text-muted-foreground" id="svg-category-select-arrow-container">
+              <svg className="h-4 w-4 fill-current" viewBox="0 0 20 20" id="svg-category-select-arrow">
+                <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" id="svg-category-select-arrow-path" />
+              </svg>
+            </div>
+          </div>
+
+          {/* Filter input */}
+          <div className="relative w-full sm:w-64" id="svg-icon-library-search-container">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <input
+              id="svg-icon-library-search-input"
+              type="text"
+              placeholder="Search custom icons..."
+              value={filterText}
+              onChange={(e) => setFilterText(e.target.value)}
+              className="w-full bg-secondary border border-border text-sm rounded-lg pl-9 pr-4 py-1.5 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent text-white placeholder-muted-foreground/60 transition-all"
+            />
+          </div>
         </div>
       </div>
 
