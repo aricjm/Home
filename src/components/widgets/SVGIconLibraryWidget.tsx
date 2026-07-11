@@ -10,139 +10,182 @@ const getInnerSvg = (raw: string): string => {
   return match ? match[1] : raw;
 };
 
-// Generative client-side SVG vector path maker
-const generateSVGPath = (name: string, category: string, seed: number): string => {
-  const normalized = name.toLowerCase().trim();
+// Generative client-side SVG vector path maker from scratch using name, description, and seed
+const generateSVGPath = (name: string, description: string, seed: number): string => {
+  const combined = `${name.trim()}_${description.trim()}_${seed}`;
 
-  // Keyword matching for high-quality standard shapes
-  if (normalized.includes("heart")) {
-    return `<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />`;
-  }
-  if (normalized.includes("star")) {
-    return `<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />`;
-  }
-  if (normalized.includes("cloud")) {
-    return `<path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z" />`;
-  }
-  if (normalized.includes("sun")) {
-    return `<circle cx="12" cy="12" r="5" /><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />`;
-  }
-  if (normalized.includes("moon")) {
-    return `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />`;
-  }
-  if (normalized.includes("check")) {
-    return `<path d="M20 6L9 17l-5-5" />`;
-  }
-  if (normalized.includes("mail") || normalized.includes("email") || normalized.includes("envelope")) {
-    return `<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><path d="M22 6l-10 7L2 6" />`;
-  }
-  if (normalized.includes("user") || normalized.includes("profile") || normalized.includes("avatar")) {
-    return `<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />`;
-  }
-  if (normalized.includes("search")) {
-    return `<circle cx="11" cy="11" r="8" /><path d="M21 21l-4.3-4.3" />`;
-  }
-  if (normalized.includes("bell") || normalized.includes("notification")) {
-    return `<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" />`;
-  }
-  if (normalized.includes("setting") || normalized.includes("gear") || normalized.includes("config")) {
-    return `<circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />`;
-  }
-  if (normalized.includes("clock") || normalized.includes("time")) {
-    return `<circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" />`;
-  }
-  if (normalized.includes("shield") || normalized.includes("protect") || normalized.includes("secure")) {
-    return `<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />`;
-  }
-  if (normalized.includes("home") || normalized.includes("house")) {
-    return `<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><path d="M9 22V12h6v10" />`;
-  }
-  if (normalized.includes("lock") && !normalized.includes("unlock")) {
-    return `<rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" />`;
-  }
-  if (normalized.includes("unlock")) {
-    return `<rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 9.9-1" />`;
-  }
-  if (normalized.includes("trash") || normalized.includes("delete") || normalized.includes("remove")) {
-    return `<path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M10 11v6M14 11v6" />`;
-  }
-  if (normalized.includes("music") || normalized.includes("song") || normalized.includes("audio")) {
-    return `<path d="M9 18V5l12-2v13M9 9l12-2" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" />`;
-  }
-  if (normalized.includes("coffee") || normalized.includes("cup") || normalized.includes("drink")) {
-    return `<path d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8zM6 1v3M10 1v3M14 1v3" />`;
-  }
-  if (normalized.includes("car") || normalized.includes("vehicle") || normalized.includes("drive")) {
-    return `<path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 1 12v4c0 .6.4 1 1 1h2" /><circle cx="7" cy="17" r="2" /><circle cx="17" cy="17" r="2" />`;
-  }
-  if (normalized.includes("trophy") || normalized.includes("winner")) {
-    return `<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18M4 22h16M10 14.66V17c0 .55-.45 1-1 1H4v2h16v-2h-5c-.55 0-1-.45-1-1v-2.34M12 2a6 6 0 0 1 6 6c0 3.2-1.9 5.86-5 6.66V2z" />`;
-  }
-  if (normalized.includes("zap") || normalized.includes("lightning") || normalized.includes("energy")) {
-    return `<path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />`;
-  }
-  if (normalized.includes("wifi") || normalized.includes("signal")) {
-    return `<path d="M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.94 0M12 20h.01" />`;
-  }
-  if (normalized.includes("camera") || normalized.includes("photo")) {
-    return `<path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" /><circle cx="12" cy="13" r="4" />`;
-  }
-  if (normalized.includes("globe") || normalized.includes("world")) {
-    return `<circle cx="12" cy="12" r="10" /><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />`;
-  }
-
-  // Fallback: Deterministic custom layout based on name string & seed offsets
+  // Deterministic 32-bit Jenkins-like hash calculation from string inputs
   let hash = 0;
-  for (let i = 0; i < name.length; i++) {
-    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  for (let i = 0; i < combined.length; i++) {
+    hash = combined.charCodeAt(i) + ((hash << 5) - hash);
+    hash = hash & hash; // Convert to 32bit integer
   }
-  hash += seed * 12345;
+  const absHash = Math.abs(hash);
 
+  // Helper to obtain a deterministic floating point value between min and max
   const getVal = (offset: number, min: number, max: number) => {
-    const val = Math.abs(Math.sin(hash + offset));
+    const val = Math.abs(Math.sin(absHash + offset * 14.521));
     return min + val * (max - min);
   };
 
-  const mode = Math.abs(hash) % 4;
+  // Helper to obtain a deterministic integer between min and max
+  const getInt = (offset: number, min: number, max: number) => {
+    return Math.floor(getVal(offset, min, max + 1));
+  };
 
-  if (mode === 0) {
-    // Polygonal badge / star emblem
-    const points: string[] = [];
-    const numPoints = Math.round(getVal(1, 6, 12));
-    const r1 = getVal(2, 4, 7);
-    const r2 = getVal(3, 8, 11);
-    for (let i = 0; i < numPoints * 2; i++) {
-      const angle = (i * Math.PI) / numPoints - Math.PI / 2;
-      const r = i % 2 === 0 ? r2 : r1;
+  const symmetry = getInt(1, 0, 2); // 0 = none/asymmetric, 1 = bilateral (crest/emblem), 2 = radial (star/flower)
+  const drawCircles = getVal(2, 0, 1) > 0.4;
+  const drawLines = getVal(3, 0, 1) > 0.4;
+  const numSteps = getInt(4, 3, 6);
+
+  let paths: string[] = [];
+
+  // 1. Procedural outer boundary frame / circles
+  if (drawCircles) {
+    const boundaryMode = getInt(5, 0, 2);
+    const radius = getVal(6, 6, 11).toFixed(1);
+    if (boundaryMode === 0) {
+      paths.push(`<circle cx="12" cy="12" r="${radius}" />`);
+      if (parseFloat(radius) > 4) {
+        const innerRad = (parseFloat(radius) - 3).toFixed(1);
+        paths.push(`<circle cx="12" cy="12" r="${innerRad}" stroke-dasharray="3,2" />`);
+      }
+    } else if (boundaryMode === 1) {
+      paths.push(`<circle cx="12" cy="12" r="${radius}" stroke-dasharray="2,3" />`);
+    } else {
+      const size = (parseFloat(radius) * 2).toFixed(1);
+      const xy = (12 - parseFloat(radius)).toFixed(1);
+      paths.push(`<rect x="${xy}" y="${xy}" width="${size}" height="${size}" rx="3" />`);
+    }
+  }
+
+  // 2. Core procedural geometry
+  if (symmetry === 1) {
+    // Bilateral horizontal symmetry (e.g. Emblem, Crest, Shield, Face)
+    const rightPoints: Array<{x: number; y: number}> = [];
+    const numPoints = getInt(7, 3, 5);
+
+    const topY = getVal(8, 3, 6);
+    rightPoints.push({ x: 12, y: topY });
+
+    for (let i = 0; i < numPoints; i++) {
+      const px = getVal(9 + i * 2, 13.5, 21.5);
+      const py = getVal(10 + i * 2, topY + 2, 17.5);
+      rightPoints.push({ x: px, y: py });
+    }
+
+    const botY = getVal(11, 16.5, 21.5);
+    rightPoints.push({ x: 12, y: botY });
+
+    // Draw right side of outline
+    let pathString = `M 12 ${topY.toFixed(1)}`;
+    for (let i = 1; i < rightPoints.length; i++) {
+      const p = rightPoints[i];
+      const curveChoice = getInt(12 + i, 0, 1);
+      if (curveChoice === 0) {
+        const cx1 = getVal(13 + i * 3, 13, 20).toFixed(1);
+        const cy1 = (rightPoints[i-1].y + (p.y - rightPoints[i-1].y) * 0.3).toFixed(1);
+        const cx2 = getVal(14 + i * 3, 13, 20).toFixed(1);
+        const cy2 = (rightPoints[i-1].y + (p.y - rightPoints[i-1].y) * 0.7).toFixed(1);
+        pathString += ` C ${cx1} ${cy1}, ${cx2} ${cy2}, ${p.x.toFixed(1)} ${p.y.toFixed(1)}`;
+      } else {
+        pathString += ` L ${p.x.toFixed(1)} ${p.y.toFixed(1)}`;
+      }
+    }
+
+    // Mirror to left side
+    for (let i = rightPoints.length - 2; i >= 0; i--) {
+      const p = rightPoints[i];
+      const mirrorX = (24 - p.x).toFixed(1);
+      const curveChoice = getInt(15 + i, 0, 1);
+      if (curveChoice === 0) {
+        const prevP = rightPoints[i + 1];
+        const mirrorPrevX = (24 - prevP.x).toFixed(1);
+        const cx1 = (24 - getVal(13 + i * 3, 13, 20)).toFixed(1);
+        const cy1 = (prevP.y + (p.y - prevP.y) * 0.3).toFixed(1);
+        const cx2 = (24 - getVal(14 + i * 3, 13, 20)).toFixed(1);
+        const cy2 = (prevP.y + (p.y - prevP.y) * 0.7).toFixed(1);
+        pathString += ` C ${cx1} ${cy1}, ${cx2} ${cy2}, ${mirrorX} ${p.y.toFixed(1)}`;
+      } else {
+        pathString += ` L ${mirrorX} ${p.y.toFixed(1)}`;
+      }
+    }
+    pathString += " Z";
+    paths.push(`<path d="${pathString}" />`);
+
+    // Symmetrical internal details
+    if (drawLines) {
+      const lineY = getVal(16, topY + 2.5, botY - 2.5).toFixed(1);
+      const lineW = getVal(17, 2, 5).toFixed(1);
+      paths.push(`<path d="M ${(12 - parseFloat(lineW)).toFixed(1)} ${lineY} L ${(12 + parseFloat(lineW)).toFixed(1)} ${lineY}" />`);
+
+      const nodeX = getVal(18, 14, 18).toFixed(1);
+      const nodeY = getVal(19, topY + 2, botY - 2).toFixed(1);
+      const nodeR = getVal(20, 0.7, 1.5).toFixed(1);
+      paths.push(`<circle cx="${nodeX}" cy="${nodeY}" r="${nodeR}" />`);
+      paths.push(`<circle cx="${(24 - parseFloat(nodeX)).toFixed(1)}" cy="${nodeY}" r="${nodeR}" />`);
+    }
+
+  } else if (symmetry === 2) {
+    // Radial/axial symmetry (e.g. Star, Snowflake, Crossed Mandala, Flower)
+    const petals = getInt(21, 5, 12);
+    const outerR = getVal(22, 7.5, 11).toFixed(1);
+    const innerR = getVal(23, 2.5, 6).toFixed(1);
+    const steps: string[] = [];
+
+    for (let i = 0; i < petals * 2; i++) {
+      const angle = (i * Math.PI) / petals - Math.PI / 2;
+      const r = i % 2 === 0 ? parseFloat(outerR) : parseFloat(innerR);
       const x = (12 + r * Math.cos(angle)).toFixed(1);
       const y = (12 + r * Math.sin(angle)).toFixed(1);
-      points.push(`${i === 0 ? 'M' : 'L'} ${x} ${y}`);
+      steps.push(`${i === 0 ? 'M' : 'L'} ${x} ${y}`);
     }
-    points.push('Z');
-    return `<path d="${points.join(' ')}" />`;
-  } else if (mode === 1) {
-    // Shield layout
-    const w = getVal(4, 5, 8).toFixed(1);
-    const h1 = getVal(5, 5, 8).toFixed(1);
-    const h2 = getVal(6, 13, 17).toFixed(1);
-    const rad = getVal(7, 1, 3).toFixed(1);
-    return `<path d="M 12 3 L ${12 + parseFloat(w)} ${h1} L ${12 + parseFloat(w)} ${h2} Q ${12 + parseFloat(w)} 21 12 21 Q ${12 - parseFloat(w)} 21 ${12 - parseFloat(w)} ${h2} L ${12 - parseFloat(w)} ${h1} Z" /><circle cx="12" cy="11" r="${rad}" />`;
-  } else if (mode === 2) {
-    // Geometric orbital flower
-    const petSize = getVal(8, 2, 4.5).toFixed(1);
-    const ringRad = getVal(9, 6, 9.5).toFixed(1);
-    return `<circle cx="12" cy="12" r="${petSize}" /><circle cx="12" cy="12" r="${ringRad}" stroke-dasharray="4,3" /><path d="M 12 2 L 12 6 M 12 18 L 12 22 M 2 12 L 6 12 M 18 12 L 22 12" />`;
+    steps.push('Z');
+    paths.push(`<path d="${steps.join(' ')}" />`);
+
+    const coreRad = getVal(24, 1.2, 3.8).toFixed(1);
+    paths.push(`<circle cx="12" cy="12" r="${coreRad}" fill="currentColor" />`);
+
+    if (drawLines) {
+      const crossR = (parseFloat(outerR) + 1.5).toFixed(1);
+      paths.push(`<path d="M 12 ${(12 - parseFloat(crossR)).toFixed(1)} L 12 ${(12 + parseFloat(crossR)).toFixed(1)} M ${(12 - parseFloat(crossR)).toFixed(1)} 12 L ${(12 + parseFloat(crossR)).toFixed(1)} 12" opacity="0.6" />`);
+    }
+
   } else {
-    // Interlinked tech frames
-    const size = getVal(10, 4, 8).toFixed(1);
-    const offset = getVal(11, 2, 4).toFixed(1);
-    const inner = getVal(12, 1, 3).toFixed(1);
-    const x1 = (12 - parseFloat(size) / 2).toFixed(1);
-    const y1 = (12 - parseFloat(size) / 2).toFixed(1);
-    const x2 = (12 - parseFloat(size) / 2 + parseFloat(offset)).toFixed(1);
-    const y2 = (12 - parseFloat(size) / 2 + parseFloat(offset)).toFixed(1);
-    return `<rect x="${x1}" y="${y1}" width="${size}" height="${size}" rx="1" /><rect x="${x2}" y="${y2}" width="${size}" height="${size}" rx="1" opacity="0.7" /><circle cx="12" cy="12" r="${inner}" />`;
+    // Asymmetric abstract geometry (e.g. Tech wave, circuit-trace, dynamic curve lines)
+    const startX = getVal(25, 3, 6).toFixed(1);
+    const startY = getVal(26, 4, 10).toFixed(1);
+    let pathD = `M ${startX} ${startY}`;
+
+    let lastX = parseFloat(startX);
+    let lastY = parseFloat(startY);
+
+    for (let i = 0; i < numSteps; i++) {
+      const nextX = getVal(27 + i * 4, lastX + 2, Math.min(22, lastX + 6.5));
+      const nextY = getVal(28 + i * 4, 3, 21);
+      
+      const c1x = getVal(29 + i * 4, lastX, nextX).toFixed(1);
+      const c1y = getVal(30 + i * 4, 3, 21).toFixed(1);
+      const c2x = getVal(31 + i * 4, lastX, nextX).toFixed(1);
+      const c2y = getVal(32 + i * 4, 3, 21).toFixed(1);
+
+      pathD += ` C ${c1x} ${c1y}, ${c2x} ${c2y}, ${nextX.toFixed(1)} ${nextY.toFixed(1)}`;
+      
+      if (getVal(33 + i, 0, 1) > 0.4) {
+        paths.push(`<circle cx="${nextX.toFixed(1)}" cy="${nextY.toFixed(1)}" r="${getVal(34+i, 0.8, 2.2).toFixed(1)}" />`);
+      }
+      lastX = nextX;
+      lastY = nextY;
+    }
+    paths.push(`<path d="${pathD}" />`);
+
+    if (drawLines) {
+      const baselineY = getVal(35, 17, 21).toFixed(1);
+      paths.push(`<path d="M 3 ${baselineY} L 21 ${baselineY}" stroke-dasharray="3,3" />`);
+    }
   }
+
+  return paths.join("\n");
 };
 
 export default function SVGIconLibraryWidget() {
@@ -242,13 +285,10 @@ export default function SVGIconLibraryWidget() {
     e.preventDefault();
     if (!newName.trim()) return;
 
-    const finalCategory = selectedAddCategory === "__NEW__" ? customCategory.trim() : selectedAddCategory.trim();
-    if (!finalCategory) return;
-
     setIsGenerating(true);
     setSeed(0);
     setTimeout(() => {
-      const generatedPath = generateSVGPath(newName, finalCategory, 0);
+      const generatedPath = generateSVGPath(newName, newDesc, 0);
       setPreviewSvg(generatedPath);
       setIsGenerating(false);
     }, 1200);
@@ -259,9 +299,8 @@ export default function SVGIconLibraryWidget() {
     setIsGenerating(true);
     const nextSeed = seed + 1;
     setSeed(nextSeed);
-    const finalCategory = selectedAddCategory === "__NEW__" ? customCategory.trim() : selectedAddCategory.trim();
     setTimeout(() => {
-      const generatedPath = generateSVGPath(newName, finalCategory || "Miscellaneous", nextSeed);
+      const generatedPath = generateSVGPath(newName, newDesc, nextSeed);
       setPreviewSvg(generatedPath);
       setIsGenerating(false);
     }, 1000);
