@@ -33,6 +33,7 @@ import TrackerWidget from "../widgets/TrackerWidget";
 import NotesWidget from "../widgets/NotesWidget";
 import APISettings from "../widgets/APISettings";
 import LucideIconLibraryWidget from "../widgets/LucideIconLibraryWidget";
+import SVGIconLibraryWidget from "../widgets/SVGIconLibraryWidget";
 
 type TabType = "dashboard" | "communications" | "workspace" | "settings";
 
@@ -181,10 +182,7 @@ export default function AppShell() {
         if (workspaceTab === "svg-icons") {
           return (
             <div className="grid grid-cols-1 gap-6">
-              <div className="bg-card border border-border rounded-2xl p-6">
-                <h2 className="text-lg font-semibold text-white">SVG Icon Library</h2>
-                <p className="text-xs text-muted-foreground mt-1">Placeholder for custom user-created SVGs.</p>
-              </div>
+              <SVGIconLibraryWidget />
             </div>
           );
         }

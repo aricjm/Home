@@ -70,8 +70,8 @@ export default function LucideIconLibraryWidget() {
           <thead>
             <tr className="border-b border-border/80 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               <th className="pb-3 pl-2 w-[24%]">Preview</th>
-              <th className="pb-3 w-[14%]">Icon Name</th>
-              <th className="pb-3 w-[40%]">React / Next.js Component Code</th>
+              <th className="pb-3 w-[62%]">Icon Name</th>
+              <th className="pb-3 w-[90%]">React / Next.js Component Code</th>
               <th className="pb-3 pr-2 w-[10%] text-center">Action</th>
             </tr>
           </thead>
@@ -119,8 +119,8 @@ export default function LucideIconLibraryWidget() {
                       <button
                         onClick={() => handleCopy(codeString, name)}
                         className={`p-2 rounded-lg border transition-all ${copiedId === name
-                            ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400"
-                            : "bg-secondary hover:bg-muted border-border text-muted-foreground hover:text-white"
+                          ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400"
+                          : "bg-secondary hover:bg-muted border-border text-muted-foreground hover:text-white"
                           }`}
                         title="Copy Component Code"
                       >
