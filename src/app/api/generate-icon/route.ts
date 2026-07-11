@@ -194,8 +194,53 @@ export async function POST(req: Request) {
       return NextResponse.json({ svg: proceduralSvg, source: "procedural-fallback" });
     }
 
-    // Call Google Gemini Developer API
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    // Self-healing model resolver: Query the list of available models for this specific API key
+    let resolvedModel = "gemini-1.5-flash";
+    try {
+      const listUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`;
+      const listRes = await fetch(listUrl);
+      if (listRes.ok) {
+        const listData = await listRes.json();
+        const models = listData.models || [];
+        
+        // Prioritized list of suitable models
+        const preferences = [
+          "gemini-2.0-flash",
+          "gemini-2.5-flash",
+          "gemini-1.5-flash",
+          "gemini-1.5-flash-latest",
+          "gemini-pro"
+        ];
+        
+        let found = false;
+        for (const pref of preferences) {
+          const match = models.find((m: any) => 
+            m.name === `models/${pref}` && 
+            m.supportedGenerationMethods?.includes("generateContent")
+          );
+          if (match) {
+            resolvedModel = pref;
+            found = true;
+            break;
+          }
+        }
+        
+        // Fallback to first available generation-capable model if none matched
+        if (!found && models.length > 0) {
+          const fallback = models.find((m: any) => 
+            m.supportedGenerationMethods?.includes("generateContent")
+          );
+          if (fallback) {
+            resolvedModel = fallback.name.replace("models/", "");
+          }
+        }
+      }
+    } catch (listErr) {
+      console.warn("Could not list available models, falling back to gemini-1.5-flash defaults:", listErr);
+    }
+
+    // Call Google Gemini API with resolved model name
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${resolvedModel}:generateContent?key=${apiKey}`;
     
     const promptText = `You are a professional web UI designer.
 Generate a clean, modern, minimalist custom vector SVG icon for:
@@ -225,7 +270,7 @@ Guidelines:
       try {
         errorDetails = await response.text();
       } catch {}
-      throw new Error(`Gemini API responded with status ${response.status}: ${errorDetails}`);
+      throw new Error(`Gemini API responded with status ${response.status} using model ${resolvedModel}: ${errorDetails}`);
     }
 
     const json = await response.json();
