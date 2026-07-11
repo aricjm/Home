@@ -221,7 +221,11 @@ Guidelines:
     });
 
     if (!response.ok) {
-      throw new Error(`Gemini API responded with status ${response.status}`);
+      let errorDetails = "";
+      try {
+        errorDetails = await response.text();
+      } catch {}
+      throw new Error(`Gemini API responded with status ${response.status}: ${errorDetails}`);
     }
 
     const json = await response.json();
