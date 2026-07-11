@@ -182,7 +182,7 @@ export default function SVGIconLibraryWidget() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   // User Custom SVGs Generation States
-  const [userIcons, setUserIcons] = useState<Record<string, { category: string; desc: string; raw: string }>>({});
+  const [userIcons, setUserIcons] = useState<Record<string, { category: string; desc: string; raw: string; source?: string }>>({});
   const [showAddModal, setShowAddModal] = useState(false);
   const [newName, setNewName] = useState("");
   
@@ -194,6 +194,7 @@ export default function SVGIconLibraryWidget() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [previewSvg, setPreviewSvg] = useState<string | null>(null);
   const [seed, setSeed] = useState(0);
+  const [generationSource, setGenerationSource] = useState<string | null>(null);
 
   // Load custom user icons from localStorage
   useEffect(() => {
@@ -204,7 +205,7 @@ export default function SVGIconLibraryWidget() {
   }, []);
 
   // Merge static icons and user-created icons
-  const allIcons: Record<string, { category: string; desc: string; raw: string; draw: React.ComponentType<React.SVGProps<SVGSVGElement>> }> = {
+  const allIcons: Record<string, { category: string; desc: string; raw: string; source?: string; draw: React.ComponentType<React.SVGProps<SVGSVGElement>> }> = {
     ...Object.keys(CUSTOM_SVGS).reduce((acc, key) => {
       acc[key] = {
         category: CUSTOM_SVGS[key].category,
@@ -220,6 +221,7 @@ export default function SVGIconLibraryWidget() {
         category: item.category,
         desc: item.desc,
         raw: item.raw,
+        source: item.source,
         draw: (props: React.SVGProps<SVGSVGElement>) => (
           <svg
             viewBox="0 0 24 24"
@@ -292,11 +294,12 @@ export default function SVGIconLibraryWidget() {
       if (!res.ok) throw new Error("Failed to generate AI icon");
       const resData = await res.json();
       setPreviewSvg(getInnerSvg(resData.svg));
+      setGenerationSource(resData.source);
     } catch (err) {
       console.warn("AI Generation offline, using client-side procedural fallback:", err);
-      // Fallback
       const generatedPath = generateSVGPath(newName, newDesc, 0);
       setPreviewSvg(generatedPath);
+      setGenerationSource("procedural-fallback");
     } finally {
       setIsGenerating(false);
     }
@@ -322,11 +325,12 @@ export default function SVGIconLibraryWidget() {
       if (!res.ok) throw new Error("Failed to retry generate AI icon");
       const resData = await res.json();
       setPreviewSvg(getInnerSvg(resData.svg));
+      setGenerationSource(resData.source);
     } catch (err) {
       console.warn("AI Retry offline, using client-side procedural fallback:", err);
-      // Fallback
       const generatedPath = generateSVGPath(newName, newDesc, nextSeed);
       setPreviewSvg(generatedPath);
+      setGenerationSource("procedural-fallback");
     } finally {
       setIsGenerating(false);
     }
@@ -352,6 +356,7 @@ export default function SVGIconLibraryWidget() {
         category: finalCategory || "Miscellaneous",
         desc: newDesc.trim() || "AI Generated Icon",
         raw: fullRawSvg,
+        source: generationSource || "procedural"
       },
     };
 
@@ -368,6 +373,7 @@ export default function SVGIconLibraryWidget() {
     setNewDesc("");
     setPreviewSvg(null);
     setSeed(0);
+    setGenerationSource(null);
     setIsGenerating(false);
   };
 
@@ -474,7 +480,14 @@ export default function SVGIconLibraryWidget() {
                     {/* Column 2: Name & Category */}
                     <td className="py-3.5 font-medium text-white select-all" id={`svg-icon-name-cell-${name}`}>
                       <div className="font-semibold text-white" id={`svg-icon-name-div-${name}`}>{name}</div>
-                      <div className="text-[10px] text-muted-foreground" id={`svg-icon-meta-div-${name}`}>{item.category} &bull; {item.desc}</div>
+                      <div className="text-[10px] text-muted-foreground flex flex-col gap-0.5" id={`svg-icon-meta-div-${name}`}>
+                        <span id={`svg-icon-meta-span-${name}`}>{item.category} &bull; {item.desc}</span>
+                        {item.source === "gemini-ai" && (
+                          <span className="text-[9px] text-accent font-semibold mt-0.5" id={`svg-icon-source-badge-${name}`}>
+                            Assisted by Google Gemini 2.5 Flash API
+                          </span>
+                        )}
+                      </div>
                     </td>
 
                     {/* Column 3: Raw SVG Code */}
@@ -564,7 +577,13 @@ export default function SVGIconLibraryWidget() {
                       />
                     </div>
                     <div className="text-sm font-semibold text-white" id="svg-add-preview-name">{newName}</div>
-                    <div className="text-xs text-muted-foreground" id="svg-add-preview-category">{currentPreviewCategoryDisplay} &bull; {newDesc || "Custom Icon"}</div>
+                    <div className="text-xs text-muted-foreground mb-3" id="svg-add-preview-category">{currentPreviewCategoryDisplay} &bull; {newDesc || "Custom Icon"}</div>
+                    {generationSource === "gemini-ai" && (
+                      <div className="text-[10px] text-accent font-semibold px-3 py-1 bg-accent/10 rounded-full flex items-center gap-1 mt-1 border border-accent/20" id="svg-add-preview-source-badge">
+                        <Sparkles className="h-3 w-3 text-accent" />
+                        Assisted by Google Gemini 2.5 Flash API
+                      </div>
+                    )}
                   </div>
 
                   {/* Actions for generated icon */}
