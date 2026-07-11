@@ -154,7 +154,11 @@ export default function SVGIconLibraryWidget() {
   const [userIcons, setUserIcons] = useState<Record<string, { category: string; desc: string; raw: string }>>({});
   const [showAddModal, setShowAddModal] = useState(false);
   const [newName, setNewName] = useState("");
-  const [newCategory, setNewCategory] = useState("");
+  
+  // Category Selector states for Modal
+  const [selectedAddCategory, setSelectedAddCategory] = useState("");
+  const [customCategory, setCustomCategory] = useState("");
+
   const [newDesc, setNewDesc] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [previewSvg, setPreviewSvg] = useState<string | null>(null);
@@ -209,6 +213,14 @@ export default function SVGIconLibraryWidget() {
     new Set(keys.map((key) => allIcons[key].category))
   ).sort();
 
+  // Enforce Category Defaults when Modal opens
+  useEffect(() => {
+    if (showAddModal) {
+      setSelectedAddCategory(categories[0] || "Animals");
+      setCustomCategory("");
+    }
+  }, [showAddModal]);
+
   const filteredKeys = keys.filter((key) => {
     const item = allIcons[key];
     const matchesCategory = selectedCategory === "All" || item.category === selectedCategory;
@@ -228,13 +240,15 @@ export default function SVGIconLibraryWidget() {
   // Handle generation click
   const handleCreate = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newName.trim() || !newCategory.trim()) return;
+    if (!newName.trim()) return;
+
+    const finalCategory = selectedAddCategory === "__NEW__" ? customCategory.trim() : selectedAddCategory.trim();
+    if (!finalCategory) return;
 
     setIsGenerating(true);
     setSeed(0);
-    // Simulate complex vector rendering calculations
     setTimeout(() => {
-      const generatedPath = generateSVGPath(newName, newCategory, 0);
+      const generatedPath = generateSVGPath(newName, finalCategory, 0);
       setPreviewSvg(generatedPath);
       setIsGenerating(false);
     }, 1200);
@@ -245,8 +259,9 @@ export default function SVGIconLibraryWidget() {
     setIsGenerating(true);
     const nextSeed = seed + 1;
     setSeed(nextSeed);
+    const finalCategory = selectedAddCategory === "__NEW__" ? customCategory.trim() : selectedAddCategory.trim();
     setTimeout(() => {
-      const generatedPath = generateSVGPath(newName, newCategory, nextSeed);
+      const generatedPath = generateSVGPath(newName, finalCategory || "Miscellaneous", nextSeed);
       setPreviewSvg(generatedPath);
       setIsGenerating(false);
     }, 1000);
@@ -262,12 +277,14 @@ export default function SVGIconLibraryWidget() {
       .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
       .join("");
 
+    const finalCategory = selectedAddCategory === "__NEW__" ? customCategory.trim() : selectedAddCategory.trim();
+
     const fullRawSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">${previewSvg}</svg>`;
 
     const updated = {
       ...userIcons,
       [formattedName]: {
-        category: newCategory.trim() || "Miscellaneous",
+        category: finalCategory || "Miscellaneous",
         desc: newDesc.trim() || "AI Generated Icon",
         raw: fullRawSvg,
       },
@@ -281,12 +298,15 @@ export default function SVGIconLibraryWidget() {
   const closeModal = () => {
     setShowAddModal(false);
     setNewName("");
-    setNewCategory("");
+    setSelectedAddCategory("");
+    setCustomCategory("");
     setNewDesc("");
     setPreviewSvg(null);
     setSeed(0);
     setIsGenerating(false);
   };
+
+  const currentPreviewCategoryDisplay = selectedAddCategory === "__NEW__" ? customCategory : selectedAddCategory;
 
   return (
     <div className="bg-card border border-border rounded-2xl p-6 relative overflow-hidden transition-all duration-300 hover:border-accent/40 flex flex-col min-h-[500px]" id="svg-icon-library-root">
@@ -479,7 +499,7 @@ export default function SVGIconLibraryWidget() {
                       />
                     </div>
                     <div className="text-sm font-semibold text-white" id="svg-add-preview-name">{newName}</div>
-                    <div className="text-xs text-muted-foreground" id="svg-add-preview-category">{newCategory} &bull; {newDesc || "Custom Icon"}</div>
+                    <div className="text-xs text-muted-foreground" id="svg-add-preview-category">{currentPreviewCategoryDisplay} &bull; {newDesc || "Custom Icon"}</div>
                   </div>
 
                   {/* Actions for generated icon */}
@@ -526,18 +546,52 @@ export default function SVGIconLibraryWidget() {
                     />
                   </div>
 
+                  {/* Category Selector */}
                   <div className="space-y-1.5" id="svg-add-form-field-category">
-                    <label className="text-xs font-semibold text-muted-foreground uppercase" htmlFor="svg-add-input-category">Category</label>
-                    <input 
-                      id="svg-add-input-category"
-                      type="text" 
-                      placeholder="e.g. Sports, Devices, Miscellaneous" 
-                      value={newCategory}
-                      onChange={(e) => setNewCategory(e.target.value)}
-                      className="w-full bg-secondary border border-border text-sm rounded-lg px-3 py-2 text-white focus:outline-none focus:border-accent"
-                      required
-                    />
+                    <label className="text-xs font-semibold text-muted-foreground uppercase" htmlFor="svg-add-select-category">Category</label>
+                    <div className="relative" id="svg-add-select-category-container">
+                      <select
+                        id="svg-add-select-category"
+                        value={selectedAddCategory}
+                        onChange={(e) => {
+                          setSelectedAddCategory(e.target.value);
+                          if (e.target.value !== "__NEW__") {
+                            setCustomCategory("");
+                          }
+                        }}
+                        className="w-full bg-secondary border border-border text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent text-white transition-all appearance-none pr-8 cursor-pointer"
+                        required
+                      >
+                        {categories.map((cat) => (
+                          <option key={cat} value={cat} id={`svg-add-category-opt-${cat.toLowerCase().replace(/[^a-z0-9]/g, "-")}`}>
+                            {cat}
+                          </option>
+                        ))}
+                        <option value="__NEW__" id="svg-add-category-opt-new-trigger">Add New Category...</option>
+                      </select>
+                      <div className="absolute inset-y-0 right-0 flex items-center pr-2.5 pointer-events-none text-muted-foreground" id="svg-add-select-category-arrow-container">
+                        <svg className="h-4 w-4 fill-current" viewBox="0 0 20 20" id="svg-add-select-category-arrow">
+                          <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" id="svg-add-select-category-arrow-path" />
+                        </svg>
+                      </div>
+                    </div>
                   </div>
+
+                  {/* Add New Category Custom Text Field */}
+                  {selectedAddCategory === "__NEW__" && (
+                    <div className="space-y-1.5 animate-in slide-in-from-top-2 duration-200" id="svg-add-form-field-custom-category">
+                      <label className="text-xs font-semibold text-muted-foreground uppercase" htmlFor="svg-add-input-custom-category">New Category Name</label>
+                      <input 
+                        id="svg-add-input-custom-category"
+                        type="text" 
+                        placeholder="e.g. Workspace, Games, Devices" 
+                        value={customCategory}
+                        onChange={(e) => setCustomCategory(e.target.value)}
+                        className="w-full bg-secondary border border-border text-sm rounded-lg px-3 py-2 text-white focus:outline-none focus:border-accent"
+                        required
+                      />
+                    </div>
+                  )}
 
                   <div className="space-y-1.5" id="svg-add-form-field-desc">
                     <label className="text-xs font-semibold text-muted-foreground uppercase" htmlFor="svg-add-input-desc">Description</label>
