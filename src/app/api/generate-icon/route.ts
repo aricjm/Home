@@ -167,8 +167,17 @@ const generateProceduralSVG = (name: string, description: string, seed: number):
 };
 
 export async function POST(req: Request) {
+  let name = "";
+  let description = "";
+  let category = "";
+  let seed = 0;
+
   try {
-    const { name, description, category, seed } = await req.json();
+    const body = await req.json();
+    name = body.name || "";
+    description = body.description || "";
+    category = body.category || "";
+    seed = body.seed || 0;
 
     if (!name) {
       return NextResponse.json({ error: "Name is required" }, { status: 400 });
@@ -178,7 +187,7 @@ export async function POST(req: Request) {
 
     // Fallback immediately if API Key is not set or placeholders are used
     if (!apiKey || apiKey.includes("your-") || apiKey.trim() === "") {
-      const proceduralSvg = generateProceduralSVG(name, description || "", seed || 0);
+      const proceduralSvg = generateProceduralSVG(name, description, seed);
       return NextResponse.json({ svg: proceduralSvg, source: "procedural-fallback" });
     }
 
@@ -190,7 +199,7 @@ Generate a clean, modern, minimalist custom vector SVG icon for:
 Icon Name: "${name}"
 Category: "${category || 'Miscellaneous'}"
 Description: "${description || 'Custom handcrafted vector'}"
-Seed: ${seed || 0} (Make sure the design is noticeably different if seed changes)
+Seed: ${seed} (Make sure the design is noticeably different if seed changes)
 
 Guidelines:
 1. Return ONLY valid SVG code.
@@ -235,16 +244,16 @@ Guidelines:
   } catch (err: any) {
     console.error("AI Generation Error:", err);
     
-    // In case of error (e.g. rate limit, bad api key, network drop), execute procedural fallback
+    // In case of error (e.g. invalid API key, network drop), execute procedural fallback using already parsed fields
     try {
-      const { name, description, seed } = await req.json();
-      const proceduralSvg = generateProceduralSVG(name, description || "", seed || 0);
+      const proceduralSvg = generateProceduralSVG(name, description, seed);
       return NextResponse.json({ 
         svg: proceduralSvg, 
         source: "procedural-error-fallback", 
         warning: err.message || "AI failed, falling back to local procedural engine" 
       });
-    } catch {
+    } catch (fallbackErr: any) {
+      console.error("Critical fallback failure:", fallbackErr);
       return NextResponse.json({ error: "Failed to generate SVG" }, { status: 500 });
     }
   }
