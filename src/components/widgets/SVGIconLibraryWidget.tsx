@@ -195,6 +195,7 @@ export default function SVGIconLibraryWidget() {
   const [previewSvg, setPreviewSvg] = useState<string | null>(null);
   const [seed, setSeed] = useState(0);
   const [generationSource, setGenerationSource] = useState<string | null>(null);
+  const [warningText, setWarningText] = useState<string | null>(null);
 
   // Load custom user icons from localStorage
   useEffect(() => {
@@ -280,6 +281,7 @@ export default function SVGIconLibraryWidget() {
 
     setIsGenerating(true);
     setSeed(0);
+    setWarningText(null);
     try {
       const res = await fetch("/api/generate-icon", {
         method: "POST",
@@ -295,11 +297,15 @@ export default function SVGIconLibraryWidget() {
       const resData = await res.json();
       setPreviewSvg(getInnerSvg(resData.svg));
       setGenerationSource(resData.source);
-    } catch (err) {
+      if (resData.warning) {
+        setWarningText(resData.warning);
+      }
+    } catch (err: any) {
       console.warn("AI Generation offline, using client-side procedural fallback:", err);
       const generatedPath = generateSVGPath(newName, newDesc, 0);
       setPreviewSvg(generatedPath);
       setGenerationSource("procedural-fallback");
+      setWarningText(err.message || "AI Offline");
     } finally {
       setIsGenerating(false);
     }
@@ -310,6 +316,7 @@ export default function SVGIconLibraryWidget() {
     setIsGenerating(true);
     const nextSeed = seed + 1;
     setSeed(nextSeed);
+    setWarningText(null);
     const finalCategory = selectedAddCategory === "__NEW__" ? customCategory.trim() : selectedAddCategory.trim();
     try {
       const res = await fetch("/api/generate-icon", {
@@ -326,11 +333,15 @@ export default function SVGIconLibraryWidget() {
       const resData = await res.json();
       setPreviewSvg(getInnerSvg(resData.svg));
       setGenerationSource(resData.source);
-    } catch (err) {
+      if (resData.warning) {
+        setWarningText(resData.warning);
+      }
+    } catch (err: any) {
       console.warn("AI Retry offline, using client-side procedural fallback:", err);
       const generatedPath = generateSVGPath(newName, newDesc, nextSeed);
       setPreviewSvg(generatedPath);
       setGenerationSource("procedural-fallback");
+      setWarningText(err.message || "AI Offline");
     } finally {
       setIsGenerating(false);
     }
@@ -374,6 +385,7 @@ export default function SVGIconLibraryWidget() {
     setPreviewSvg(null);
     setSeed(0);
     setGenerationSource(null);
+    setWarningText(null);
     setIsGenerating(false);
   };
 
@@ -577,11 +589,17 @@ export default function SVGIconLibraryWidget() {
                       />
                     </div>
                     <div className="text-sm font-semibold text-white" id="svg-add-preview-name">{newName}</div>
-                    <div className="text-xs text-muted-foreground mb-3" id="svg-add-preview-category">{currentPreviewCategoryDisplay} &bull; {newDesc || "Custom Icon"}</div>
+                    <div className="text-xs text-muted-foreground mb-2" id="svg-add-preview-category">{currentPreviewCategoryDisplay} &bull; {newDesc || "Custom Icon"}</div>
                     {generationSource === "gemini-ai" && (
                       <div className="text-[10px] text-accent font-semibold px-3 py-1 bg-accent/10 rounded-full flex items-center gap-1 mt-1 border border-accent/20" id="svg-add-preview-source-badge">
                         <Sparkles className="h-3 w-3 text-accent" />
                         Assisted by Google Gemini 2.5 Flash API
+                      </div>
+                    )}
+                    {warningText && (
+                      <div className="text-[10px] text-amber-400 bg-amber-500/10 px-3 py-2 rounded-lg border border-amber-500/20 text-center font-mono mt-2 flex flex-col gap-1 w-full max-w-[280px]" id="svg-add-preview-warning-alert">
+                        <span className="font-semibold text-amber-300">⚠️ AI Rate Limited / Quota Depleted</span>
+                        <span className="text-[9px] text-muted-foreground leading-normal">Using procedural fallback. Please wait a minute or upgrade Google project plan.</span>
                       </div>
                     )}
                   </div>
