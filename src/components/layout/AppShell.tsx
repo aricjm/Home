@@ -1,15 +1,15 @@
 "use client";
 
 import React, { useState } from "react";
-import { 
-  LayoutDashboard, 
-  Mail, 
-  Calendar, 
-  ListTodo, 
-  Settings, 
-  ChevronLeft, 
-  ChevronRight, 
-  Menu, 
+import {
+  LayoutDashboard,
+  Mail,
+  Calendar,
+  ListTodo,
+  Settings,
+  ChevronLeft,
+  ChevronRight,
+  Menu,
   X,
   Bell,
   Search,
@@ -18,7 +18,9 @@ import {
   Link2,
   FileText,
   User,
-  LogOut
+  LogOut,
+  Sparkles,
+  Image as ImageIcon
 } from "lucide-react";
 
 // Sub-components to be created
@@ -30,6 +32,7 @@ import QuickLinks from "../widgets/QuickLinks";
 import TrackerWidget from "../widgets/TrackerWidget";
 import NotesWidget from "../widgets/NotesWidget";
 import APISettings from "../widgets/APISettings";
+import LucideIconLibraryWidget from "../widgets/LucideIconLibraryWidget";
 
 type TabType = "dashboard" | "communications" | "workspace" | "settings";
 
@@ -37,6 +40,7 @@ export default function AppShell() {
   const [activeTab, setActiveTab] = useState<TabType>("dashboard");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [workspaceTab, setWorkspaceTab] = useState<"trackers" | "notes" | "lucide-icons" | "svg-icons">("trackers");
 
   const topNavItems = [
     { id: "dashboard" as TabType, name: "Dashboard", icon: LayoutDashboard },
@@ -48,8 +52,8 @@ export default function AppShell() {
   // Render sidebar contents dynamically based on active top tab
   const renderSidebarContent = () => {
     const containerClasses = sidebarCollapsed ? "flex flex-col items-center gap-2 p-2" : "flex flex-col gap-2 p-4";
-    const buttonClasses = sidebarCollapsed 
-      ? "flex items-center justify-center rounded-lg p-2.5 text-foreground hover:bg-muted transition-all hover:text-accent shrink-0" 
+    const buttonClasses = sidebarCollapsed
+      ? "flex items-center justify-center rounded-lg p-2.5 text-foreground hover:bg-muted transition-all hover:text-accent shrink-0"
       : "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-foreground hover:bg-muted transition-all";
 
     switch (activeTab) {
@@ -84,15 +88,46 @@ export default function AppShell() {
           </div>
         );
       case "workspace":
+        const getWorkspaceBtnClass = (tab: "trackers" | "notes" | "lucide-icons" | "svg-icons") => {
+          const isActive = workspaceTab === tab;
+          if (sidebarCollapsed) {
+            return `flex items-center justify-center rounded-lg p-2.5 shrink-0 transition-all ${
+              isActive ? "bg-accent text-white shadow-md shadow-accent/20" : "text-foreground hover:bg-muted hover:text-accent"
+            }`;
+          }
+          return `flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all ${
+            isActive ? "bg-accent text-white font-medium shadow-md shadow-accent/20" : "text-foreground hover:bg-muted hover:text-accent"
+          }`;
+        };
         return (
           <div className={containerClasses}>
-            <button className={buttonClasses}>
-              <ListTodo className="h-4 w-4 text-accent shrink-0" />
+            <button 
+              onClick={() => setWorkspaceTab("trackers")}
+              className={getWorkspaceBtnClass("trackers")}
+            >
+              <ListTodo className={`h-4 w-4 shrink-0 ${workspaceTab === "trackers" ? "text-white" : "text-accent"}`} />
               {!sidebarCollapsed && <span>Active Trackers</span>}
             </button>
-            <button className={buttonClasses}>
-              <FileText className="h-4 w-4 text-accent shrink-0" />
+            <button 
+              onClick={() => setWorkspaceTab("notes")}
+              className={getWorkspaceBtnClass("notes")}
+            >
+              <FileText className={`h-4 w-4 shrink-0 ${workspaceTab === "notes" ? "text-white" : "text-accent"}`} />
               {!sidebarCollapsed && <span>Scratchpad Notes</span>}
+            </button>
+            <button 
+              onClick={() => setWorkspaceTab("lucide-icons")}
+              className={getWorkspaceBtnClass("lucide-icons")}
+            >
+              <Sparkles className={`h-4 w-4 shrink-0 ${workspaceTab === "lucide-icons" ? "text-white" : "text-accent"}`} />
+              {!sidebarCollapsed && <span>Lucide Icon Library</span>}
+            </button>
+            <button 
+              onClick={() => setWorkspaceTab("svg-icons")}
+              className={getWorkspaceBtnClass("svg-icons")}
+            >
+              <ImageIcon className={`h-4 w-4 shrink-0 ${workspaceTab === "svg-icons" ? "text-white" : "text-accent"}`} />
+              {!sidebarCollapsed && <span>SVG Icon Library</span>}
             </button>
           </div>
         );
@@ -136,6 +171,30 @@ export default function AppShell() {
           </div>
         );
       case "workspace":
+        if (workspaceTab === "lucide-icons") {
+          return (
+            <div className="grid grid-cols-1 gap-6">
+              <LucideIconLibraryWidget />
+            </div>
+          );
+        }
+        if (workspaceTab === "svg-icons") {
+          return (
+            <div className="grid grid-cols-1 gap-6">
+              <div className="bg-card border border-border rounded-2xl p-6">
+                <h2 className="text-lg font-semibold text-white">SVG Icon Library</h2>
+                <p className="text-xs text-muted-foreground mt-1">Placeholder for custom user-created SVGs.</p>
+              </div>
+            </div>
+          );
+        }
+        if (workspaceTab === "notes") {
+          return (
+            <div className="grid grid-cols-1 gap-6">
+              <NotesWidget />
+            </div>
+          );
+        }
         return (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2">
@@ -160,13 +219,13 @@ export default function AppShell() {
       {/* FIXED TOP NAVIGATION BAR */}
       <header className="sticky top-0 z-50 h-16 w-full bg-card/80 backdrop-blur-md border-b border-border flex items-center justify-between px-4 md:px-6">
         <div className="flex items-center gap-4">
-          <button 
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)} 
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="md:hidden p-2 hover:bg-muted rounded-lg text-muted-foreground hover:text-foreground"
           >
             {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
-          
+
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-accent to-blue-400 flex items-center justify-center shadow-neon">
               <span className="text-white font-bold text-sm">H</span>
@@ -186,11 +245,10 @@ export default function AppShell() {
               <button
                 key={item.id}
                 onClick={() => setActiveTab(item.id)}
-                className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-all ${
-                  isActive 
-                    ? "bg-accent text-white shadow-md shadow-accent/20" 
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                }`}
+                className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-all ${isActive
+                  ? "bg-accent text-white shadow-md shadow-accent/20"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                  }`}
               >
                 <Icon className="h-4 w-4" />
                 <span>{item.name}</span>
@@ -203,13 +261,13 @@ export default function AppShell() {
         <div className="flex items-center gap-3">
           <div className="relative hidden sm:block">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <input 
-              type="text" 
-              placeholder="Search..." 
+            <input
+              type="text"
+              placeholder="Search..."
               className="bg-secondary border border-border text-sm rounded-lg pl-9 pr-4 py-1.5 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent w-48 lg:w-64 transition-all"
             />
           </div>
-          
+
           <button className="p-2 hover:bg-muted rounded-lg text-muted-foreground hover:text-foreground relative">
             <Bell className="h-5 w-5" />
             <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-accent animate-pulse"></span>
@@ -226,9 +284,8 @@ export default function AppShell() {
       </header>
 
       {/* MOBILE TOP NAV (Shown only on small screens) */}
-      <div className={`md:hidden fixed inset-x-0 top-16 bg-card border-b border-border z-40 transition-all duration-300 transform ${
-        mobileMenuOpen ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0 pointer-events-none"
-      }`}>
+      <div className={`md:hidden fixed inset-x-0 top-16 bg-card border-b border-border z-40 transition-all duration-300 transform ${mobileMenuOpen ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0 pointer-events-none"
+        }`}>
         <nav className="grid grid-cols-4 gap-1 p-2 bg-secondary/50">
           {topNavItems.map((item) => {
             const Icon = item.icon;
@@ -240,11 +297,10 @@ export default function AppShell() {
                   setActiveTab(item.id);
                   setMobileMenuOpen(false);
                 }}
-                className={`flex flex-col items-center justify-center py-2 text-xs font-medium rounded-lg gap-1 transition-all ${
-                  isActive 
-                    ? "text-accent bg-accent/10" 
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
+                className={`flex flex-col items-center justify-center py-2 text-xs font-medium rounded-lg gap-1 transition-all ${isActive
+                  ? "text-accent bg-accent/10"
+                  : "text-muted-foreground hover:text-foreground"
+                  }`}
               >
                 <Icon className="h-5 w-5" />
                 <span>{item.name.split(" ")[0]}</span>
@@ -257,15 +313,13 @@ export default function AppShell() {
       {/* MAIN CONTAINER WITH SIDEBAR AND CONTENT */}
       <div className="flex-1 flex overflow-hidden">
         {/* COLLAPSIBLE SIDEBAR */}
-        <aside 
-          className={`relative bg-card/40 border-r border-border flex flex-col transition-all duration-300 ${
-            sidebarCollapsed ? "w-16" : "w-64"
-          } hidden md:flex`}
+        <aside
+          className={`relative bg-card/40 border-r border-border flex flex-col transition-all duration-300 ${sidebarCollapsed ? "w-16" : "w-64"
+            } hidden md:flex`}
         >
           {/* Sidebar Header / Toggle */}
-          <div className={`p-4 border-b border-border/50 flex items-center ${
-            sidebarCollapsed ? "justify-center" : "justify-between gap-3"
-          } shrink-0`}>
+          <div className={`p-4 border-b border-border/50 flex items-center ${sidebarCollapsed ? "justify-center" : "justify-between gap-3"
+            } shrink-0`}>
             <button
               onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
               className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground shrink-0 transition-colors"
@@ -309,7 +363,7 @@ export default function AppShell() {
                   Overview of your personal control center.
                 </p>
               </div>
-              
+
               <div className="text-xs text-muted-foreground font-mono bg-secondary px-3 py-1.5 rounded-lg border border-border">
                 WAUKEE, IA &bull; {new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' })}
               </div>
