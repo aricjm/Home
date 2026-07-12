@@ -4,33 +4,21 @@ import React, { useState } from "react";
 import * as HeroIcons from "@heroicons/react/24/outline";
 import { Search, Copy, Check, Sparkles } from "lucide-react"; // Using Lucide for controls
 
-// List of popular Heroicons (outline version) to display in the library
-const POPULAR_HEROICONS = [
-  "HomeIcon", "UserIcon", "EnvelopeIcon", "CalendarIcon", "ClockIcon",
-  "ChevronLeftIcon", "ChevronRightIcon", "Bars3Icon", "XMarkIcon", "BellIcon",
-  "MagnifyingGlassIcon", "CloudIcon", "TrophyIcon", "LinkIcon", "DocumentTextIcon",
-  "ArrowDownIcon", "ArrowLeftIcon", "ArrowRightIcon", "ArrowUpIcon", "PlusIcon",
-  "TrashIcon", "SparklesIcon", "StarIcon", "HeartIcon", "PlayIcon",
-  "PauseIcon", "SpeakerWaveIcon", "SpeakerXMarkIcon", "WifiIcon", "Battery100Icon",
-  "MapPinIcon", "CheckCircleIcon", "XCircleIcon", "ServerIcon", "KeyIcon",
-  "GlobeAltIcon", "CameraIcon", "EyeIcon", "EyeSlashIcon", "FolderIcon",
-  "LockClosedIcon", "LockOpenIcon", "MoonIcon", "SunIcon", "PhoneIcon",
-  "ArrowPathIcon", "ShareIcon", "ShoppingBagIcon", "ShoppingCartIcon", "AdjustmentsHorizontalIcon",
-  "BriefcaseIcon", "CpuChipIcon", "CreditCardIcon", "WrenchIcon", "ShieldCheckIcon",
-  "ScaleIcon", "TagIcon", "TicketIcon", "NewspaperIcon", "PaperClipIcon",
-  "PencilIcon", "PhotoIcon", "GiftIcon", "FireIcon", "LightBulbIcon",
-  "HandThumbUpIcon", "HandThumbDownIcon", "FolderOpenIcon", "CogIcon", "BookOpenIcon",
-  "InboxIcon", "ExclamationTriangleIcon", "InformationCircleIcon", "QuestionMarkCircleIcon", "FunnelIcon",
-  "AcademicCapIcon", "ArrowTopRightOnSquareIcon", "BuildingOfficeIcon", "CommandLineIcon", "MapIcon"
-];
+// Dynamically extract all outline icons exported by @heroicons/react
+const ALL_HEROICONS = Object.keys(HeroIcons).filter(
+  (name) => name.endsWith("Icon") && typeof (HeroIcons as any)[name] === "object"
+);
 
 export default function HeroiconsIconLibraryWidget() {
   const [filterText, setFilterText] = useState("");
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
-  const filteredIcons = POPULAR_HEROICONS.filter((name) =>
+  const filteredIcons = ALL_HEROICONS.filter((name) =>
     name.toLowerCase().includes(filterText.toLowerCase())
   );
+
+  // Paginated/limited view for DOM performance (show top 100 matching results)
+  const displayedIcons = filteredIcons.slice(0, 100);
 
   const handleCopy = (code: string, id: string) => {
     navigator.clipboard.writeText(code);
@@ -83,7 +71,7 @@ export default function HeroiconsIconLibraryWidget() {
                 </td>
               </tr>
             ) : (
-              filteredIcons.map((name) => {
+              displayedIcons.map((name) => {
                 // Dynamically fetch the icon component from Heroicons Outline
                 const IconComponent = (HeroIcons as any)[name];
                 const codeString = `<${name} className="h-6 w-6" />`;
@@ -142,7 +130,7 @@ export default function HeroiconsIconLibraryWidget() {
       </div>
 
       <div className="mt-4 pt-3 border-t border-border/50 text-[10px] text-muted-foreground font-mono flex justify-between items-center" id="heroicons-icon-library-footer">
-        <span id="heroicons-icon-library-footer-count">Showing {filteredIcons.length} of {POPULAR_HEROICONS.length} library icons</span>
+        <span id="heroicons-icon-library-footer-count">Showing {displayedIcons.length} of {filteredIcons.length} matching icons (Total: {ALL_HEROICONS.length})</span>
         <span id="heroicons-icon-library-footer-source">Imports from '@heroicons/react/24/outline'</span>
       </div>
     </div>

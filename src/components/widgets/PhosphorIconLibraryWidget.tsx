@@ -4,33 +4,21 @@ import React, { useState } from "react";
 import * as PhosphorIcons from "@phosphor-icons/react";
 import { Search, Copy, Check, Sparkles } from "lucide-react"; // Using Lucide for controls
 
-// List of popular Phosphor icons to display in the library
-const POPULAR_PHOSPHOR_ICONS = [
-  "House", "User", "Envelope", "Calendar", "Clock",
-  "CaretLeft", "CaretRight", "List", "X", "Bell",
-  "MagnifyingGlass", "CloudRain", "Trophy", "Link", "FileText",
-  "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowUp", "Plus",
-  "Trash", "Sparkles", "Star", "Heart", "Play",
-  "Pause", "SpeakerHigh", "SpeakerX", "WifiHigh", "BatteryFull",
-  "MapPin", "CheckCircle", "XCircle", "Database", "Key",
-  "Globe", "Camera", "Eye", "EyeSlash", "Folder",
-  "Lock", "LockOpen", "Moon", "Sun", "Phone",
-  "ArrowClockwise", "ShareNetwork", "ShoppingBag", "ShoppingCart", "Sliders",
-  "Briefcase", "Cpu", "CreditCard", "Wrench", "ShieldCheck",
-  "Scales", "Tag", "Ticket", "Newspaper", "Paperclip",
-  "Pencil", "Image", "Gift", "Flame", "Lightbulb",
-  "ThumbsUp", "ThumbsDown", "FolderOpen", "Gear", "Book",
-  "Inbox", "Warning", "Info", "Question", "Funnel",
-  "GraduationCap", "ArrowSquareOut", "Building", "Terminal", "MapTrifold"
-];
+// Dynamically extract all icons exported by @phosphor-icons/react
+const ALL_PHOSPHOR_ICONS = Object.keys(PhosphorIcons).filter(
+  (name) => /^[A-Z]/.test(name) && name !== "IconContext" && typeof (PhosphorIcons as any)[name] === "object"
+);
 
 export default function PhosphorIconLibraryWidget() {
   const [filterText, setFilterText] = useState("");
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
-  const filteredIcons = POPULAR_PHOSPHOR_ICONS.filter((name) =>
+  const filteredIcons = ALL_PHOSPHOR_ICONS.filter((name) =>
     name.toLowerCase().includes(filterText.toLowerCase())
   );
+
+  // Paginated/limited view for DOM performance (show top 100 matching results)
+  const displayedIcons = filteredIcons.slice(0, 100);
 
   const handleCopy = (code: string, id: string) => {
     navigator.clipboard.writeText(code);
@@ -83,7 +71,7 @@ export default function PhosphorIconLibraryWidget() {
                 </td>
               </tr>
             ) : (
-              filteredIcons.map((name) => {
+              displayedIcons.map((name) => {
                 // Dynamically fetch the icon component from Phosphor
                 const IconComponent = (PhosphorIcons as any)[name];
                 const codeString = `<${name} size={24} weight="regular" />`;
@@ -142,7 +130,7 @@ export default function PhosphorIconLibraryWidget() {
       </div>
 
       <div className="mt-4 pt-3 border-t border-border/50 text-[10px] text-muted-foreground font-mono flex justify-between items-center" id="phosphor-icon-library-footer">
-        <span id="phosphor-icon-library-footer-count">Showing {filteredIcons.length} of {POPULAR_PHOSPHOR_ICONS.length} library icons</span>
+        <span id="phosphor-icon-library-footer-count">Showing {displayedIcons.length} of {filteredIcons.length} matching icons (Total: {ALL_PHOSPHOR_ICONS.length})</span>
         <span id="phosphor-icon-library-footer-source">Imports from '@phosphor-icons/react'</span>
       </div>
     </div>

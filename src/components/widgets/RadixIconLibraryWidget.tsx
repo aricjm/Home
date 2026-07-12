@@ -4,33 +4,21 @@ import React, { useState } from "react";
 import * as RadixIcons from "@radix-ui/react-icons";
 import { Search, Copy, Check, Sparkles } from "lucide-react"; // Using Lucide for controls
 
-// List of popular Radix icons to display in the library
-const POPULAR_RADIX_ICONS = [
-  "HomeIcon", "AvatarIcon", "EnvelopeClosedIcon", "CalendarIcon", "ClockIcon",
-  "ChevronLeftIcon", "ChevronRightIcon", "HamburgerMenuIcon", "Cross1Icon", "BellIcon",
-  "MagnifyingGlassIcon", "SunIcon", "MoonIcon", "LockClosedIcon", "LockOpen1Icon",
-  "ArrowDownIcon", "ArrowLeftIcon", "ArrowRightIcon", "ArrowUpIcon", "PlusIcon",
-  "TrashIcon", "StarIcon", "HeartIcon", "PlayIcon", "PauseIcon",
-  "SpeakerLoudIcon", "SpeakerOffIcon", "CheckIcon", "CrossCircledIcon", "CheckCircledIcon",
-  "GlobeIcon", "CameraIcon", "EyeOpenIcon", "EyeClosedIcon", "FolderIcon",
-  "BackpackIcon", "ArchiveIcon", "LinkedInLogoIcon", "GitHubLogoIcon", "TwitterLogoIcon",
-  "InstagramLogoIcon", "ExternalLinkIcon", "Link2Icon", "FileTextIcon", "LaptopIcon",
-  "DesktopIcon", "GearIcon", "MixerHorizontalIcon", "Component1Icon", "CardStackIcon",
-  "WrenchIcon", "ShieldIcon", "DrawingPinIcon", "PinLeftIcon", "PinRightIcon",
-  "CookieIcon", "FaceIcon", "GridIcon", "BookmarkIcon", "DiscIcon",
-  "ExclamationTriangleIcon", "InfoCircledIcon", "QuestionMarkCircledIcon", "EnterIcon", "ExitIcon",
-  "ReaderIcon", "CodeIcon", "ActivityLogIcon", "CursorArrowIcon", "DimensionsIcon",
-  "IdCardIcon", "PaperPlaneIcon", "Share1Icon", "UpdateIcon", "TimerIcon",
-  "DoubleArrowLeftIcon", "DoubleArrowRightIcon", "DownloadIcon", "UploadIcon", "VideoIcon", "LayersIcon"
-];
+// Dynamically extract all icons exported by @radix-ui/react-icons
+const ALL_RADIX_ICONS = Object.keys(RadixIcons).filter(
+  (name) => name.endsWith("Icon") && typeof (RadixIcons as any)[name] === "object"
+);
 
 export default function RadixIconLibraryWidget() {
   const [filterText, setFilterText] = useState("");
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
-  const filteredIcons = POPULAR_RADIX_ICONS.filter((name) =>
+  const filteredIcons = ALL_RADIX_ICONS.filter((name) =>
     name.toLowerCase().includes(filterText.toLowerCase())
   );
+
+  // Paginated/limited view for DOM performance (show top 100 matching results)
+  const displayedIcons = filteredIcons.slice(0, 100);
 
   const handleCopy = (code: string, id: string) => {
     navigator.clipboard.writeText(code);
@@ -83,7 +71,7 @@ export default function RadixIconLibraryWidget() {
                 </td>
               </tr>
             ) : (
-              filteredIcons.map((name) => {
+              displayedIcons.map((name) => {
                 // Dynamically fetch the icon component from Radix
                 const IconComponent = (RadixIcons as any)[name];
                 const codeString = `<${name} className="h-5 w-5" />`;
@@ -142,7 +130,7 @@ export default function RadixIconLibraryWidget() {
       </div>
 
       <div className="mt-4 pt-3 border-t border-border/50 text-[10px] text-muted-foreground font-mono flex justify-between items-center" id="radix-icon-library-footer">
-        <span id="radix-icon-library-footer-count">Showing {filteredIcons.length} of {POPULAR_RADIX_ICONS.length} library icons</span>
+        <span id="radix-icon-library-footer-count">Showing {displayedIcons.length} of {filteredIcons.length} matching icons (Total: {ALL_RADIX_ICONS.length})</span>
         <span id="radix-icon-library-footer-source">Imports from '@radix-ui/react-icons'</span>
       </div>
     </div>

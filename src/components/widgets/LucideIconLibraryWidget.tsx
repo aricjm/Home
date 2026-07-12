@@ -4,34 +4,21 @@ import React, { useState } from "react";
 import * as Icons from "lucide-react";
 import { Search, Copy, Check } from "lucide-react";
 
-// List of popular icons to display in the library
-const POPULAR_ICONS = [
-  "LayoutDashboard", "Mail", "Calendar", "ListTodo", "Settings",
-  "ChevronLeft", "ChevronRight", "Menu", "X", "Bell",
-  "Search", "CloudRain", "Trophy", "Link2", "FileText",
-  "User", "LogOut", "Activity", "Plus", "Trash2",
-  "ExternalLink", "ShieldAlert", "Star", "Heart", "Home",
-  "Play", "Pause", "Volume2", "VolumeX", "Wifi",
-  "Battery", "Clock", "MapPin", "CalendarRange", "CheckCircle2",
-  "XCircle", "Database", "Key", "Globe", "Camera",
-  "Compass", "DollarSign", "Eye", "EyeOff", "Folder",
-  "Github", "Image", "Lock", "Unlock", "Moon",
-  "Sun", "Phone", "RefreshCw", "Share2", "ShoppingBag",
-  "ShoppingCart", "Sliders", "Sparkles", "Terminal", "ThumbsUp",
-  "ThumbsDown", "Upload", "Download", "Video", "Zap",
-  "AlertCircle", "HelpCircle", "Info", "Filter", "ArrowUp",
-  "ArrowDown", "ArrowLeft", "ArrowRight", "BookOpen", "Briefcase",
-  "Code", "CreditCard", "Cpu", "Layers", "Monitor",
-  "Smartphone", "Laptop", "Server", "HardDrive"
-];
+// Dynamically extract all icons exported by lucide-react
+const ALL_ICONS = Object.keys(Icons).filter(
+  (name) => /^[A-Z]/.test(name) && typeof (Icons as any)[name] === "object"
+);
 
 export default function LucideIconLibraryWidget() {
   const [filterText, setFilterText] = useState("");
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
-  const filteredIcons = POPULAR_ICONS.filter((name) =>
+  const filteredIcons = ALL_ICONS.filter((name) =>
     name.toLowerCase().includes(filterText.toLowerCase())
   );
+
+  // Paginated/limited view for DOM performance (show top 100 matching results)
+  const displayedIcons = filteredIcons.slice(0, 100);
 
   const handleCopy = (code: string, id: string) => {
     navigator.clipboard.writeText(code);
@@ -84,7 +71,7 @@ export default function LucideIconLibraryWidget() {
                 </td>
               </tr>
             ) : (
-              filteredIcons.map((name) => {
+              displayedIcons.map((name) => {
                 // Dynamically fetch the icon component from Lucide
                 const IconComponent = (Icons as any)[name];
                 const codeString = `<${name} className="h-5 w-5" />`;
@@ -143,7 +130,7 @@ export default function LucideIconLibraryWidget() {
       </div>
 
       <div className="mt-4 pt-3 border-t border-border/50 text-[10px] text-muted-foreground font-mono flex justify-between items-center" id="lucide-icon-library-footer">
-        <span id="lucide-icon-library-footer-count">Showing {filteredIcons.length} of {POPULAR_ICONS.length} library icons</span>
+        <span id="lucide-icon-library-footer-count">Showing {displayedIcons.length} of {filteredIcons.length} matching icons (Total: {ALL_ICONS.length})</span>
         <span id="lucide-icon-library-footer-source">Imports from 'lucide-react'</span>
       </div>
     </div>

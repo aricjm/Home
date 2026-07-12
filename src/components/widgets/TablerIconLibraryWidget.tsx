@@ -4,33 +4,21 @@ import React, { useState } from "react";
 import * as TablerIcons from "@tabler/icons-react";
 import { Search, Copy, Check, Sparkles } from "lucide-react"; // Using Lucide for controls
 
-// List of popular Tabler icons to display in the library
-const POPULAR_TABLER_ICONS = [
-  "IconHome", "IconUser", "IconMail", "IconCalendar", "IconClock",
-  "IconChevronLeft", "IconChevronRight", "IconMenu2", "IconX", "IconBell",
-  "IconSearch", "IconCloudRain", "IconTrophy", "IconLink", "IconFileText",
-  "IconArrowDown", "IconArrowLeft", "IconArrowRight", "IconArrowUp", "IconPlus",
-  "IconTrash", "IconSparkles", "IconStar", "IconHeart", "IconPlay",
-  "IconPause", "IconVolume", "IconVolume3", "IconWifi", "IconBattery",
-  "IconMapPin", "IconCheckcircle", "IconXcircle", "IconDatabase", "IconKey",
-  "IconGlobe", "IconCamera", "IconEye", "IconEyeOff", "IconFolder",
-  "IconLock", "IconLockOpen", "IconMoon", "IconSun", "IconPhone",
-  "IconRefresh", "IconShare", "IconShoppingBag", "IconShoppingCart", "IconAdjustments",
-  "IconBriefcase", "IconCpu", "IconCreditCard", "IconWrench", "IconShieldCheck",
-  "IconScale", "IconTag", "IconTicket", "IconNews", "IconPaperclip",
-  "IconEdit", "IconPhoto", "IconGift", "IconFlame", "IconBulb",
-  "IconThumbUp", "IconThumbDown", "IconFolderOpen", "IconSettings", "IconBook",
-  "IconInbox", "IconAlertTriangle", "IconInfoCircle", "IconHelpCircle", "IconFilter",
-  "IconSchool", "IconExternalLink", "IconBuilding", "IconTerminal", "IconMap"
-];
+// Dynamically extract all icons exported by @tabler/icons-react
+const ALL_TABLER_ICONS = Object.keys(TablerIcons).filter(
+  (name) => name.startsWith("Icon") && typeof (TablerIcons as any)[name] === "object"
+);
 
 export default function TablerIconLibraryWidget() {
   const [filterText, setFilterText] = useState("");
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
-  const filteredIcons = POPULAR_TABLER_ICONS.filter((name) =>
+  const filteredIcons = ALL_TABLER_ICONS.filter((name) =>
     name.toLowerCase().includes(filterText.toLowerCase())
   );
+
+  // Paginated/limited view for DOM performance (show top 100 matching results)
+  const displayedIcons = filteredIcons.slice(0, 100);
 
   const handleCopy = (code: string, id: string) => {
     navigator.clipboard.writeText(code);
@@ -83,7 +71,7 @@ export default function TablerIconLibraryWidget() {
                 </td>
               </tr>
             ) : (
-              filteredIcons.map((name) => {
+              displayedIcons.map((name) => {
                 // Dynamically fetch the icon component from Tabler
                 const IconComponent = (TablerIcons as any)[name];
                 const codeString = `<${name} size={24} stroke={2} />`;
@@ -142,7 +130,7 @@ export default function TablerIconLibraryWidget() {
       </div>
 
       <div className="mt-4 pt-3 border-t border-border/50 text-[10px] text-muted-foreground font-mono flex justify-between items-center" id="tabler-icon-library-footer">
-        <span id="tabler-icon-library-footer-count">Showing {filteredIcons.length} of {POPULAR_TABLER_ICONS.length} library icons</span>
+        <span id="tabler-icon-library-footer-count">Showing {displayedIcons.length} of {filteredIcons.length} matching icons (Total: {ALL_TABLER_ICONS.length})</span>
         <span id="tabler-icon-library-footer-source">Imports from '@tabler/icons-react'</span>
       </div>
     </div>
