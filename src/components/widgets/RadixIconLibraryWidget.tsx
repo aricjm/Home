@@ -12,13 +12,22 @@ const ALL_RADIX_ICONS = Object.keys(RadixIcons).filter(
 export default function RadixIconLibraryWidget() {
   const [filterText, setFilterText] = useState("");
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  
+  const ITEMS_PER_PAGE = 100;
+
+  const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFilterText(e.target.value);
+    setCurrentPage(1);
+  };
 
   const filteredIcons = ALL_RADIX_ICONS.filter((name) =>
     name.toLowerCase().includes(filterText.toLowerCase())
   );
 
-  // Paginated/limited view for DOM performance (show top 100 matching results)
-  const displayedIcons = filteredIcons.slice(0, 100);
+  const totalPages = Math.ceil(filteredIcons.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const displayedIcons = filteredIcons.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   const handleCopy = (code: string, id: string) => {
     navigator.clipboard.writeText(code);
@@ -47,7 +56,7 @@ export default function RadixIconLibraryWidget() {
             type="text"
             placeholder="Search icons..."
             value={filterText}
-            onChange={(e) => setFilterText(e.target.value)}
+            onChange={handleFilterChange}
             className="w-full bg-secondary border border-border text-sm rounded-lg pl-9 pr-4 py-1.5 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent text-white placeholder-muted-foreground/60 transition-all"
           />
         </div>
@@ -129,8 +138,33 @@ export default function RadixIconLibraryWidget() {
         </table>
       </div>
 
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="flex justify-between items-center mt-4 pt-3 border-t border-border/40 gap-4" id="radix-icon-library-pagination">
+          <button
+            id="radix-icon-library-prev-btn"
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+            className="px-3 py-1.5 bg-secondary hover:bg-muted border border-border text-xs rounded-lg text-white font-medium disabled:opacity-40 disabled:pointer-events-none transition-colors"
+          >
+            Previous
+          </button>
+          <span className="text-xs text-muted-foreground font-mono" id="radix-icon-library-page-info">
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            id="radix-icon-library-next-btn"
+            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+            className="px-3 py-1.5 bg-secondary hover:bg-muted border border-border text-xs rounded-lg text-white font-medium disabled:opacity-40 disabled:pointer-events-none transition-colors"
+          >
+            Next
+          </button>
+        </div>
+      )}
+
       <div className="mt-4 pt-3 border-t border-border/50 text-[10px] text-muted-foreground font-mono flex justify-between items-center" id="radix-icon-library-footer">
-        <span id="radix-icon-library-footer-count">Showing {displayedIcons.length} of {filteredIcons.length} matching icons (Total: {ALL_RADIX_ICONS.length})</span>
+        <span id="radix-icon-library-footer-count">Showing {filteredIcons.length > 0 ? startIndex + 1 : 0} - {Math.min(startIndex + displayedIcons.length, filteredIcons.length)} of {filteredIcons.length} matching icons (Total: {ALL_RADIX_ICONS.length})</span>
         <span id="radix-icon-library-footer-source">Imports from '@radix-ui/react-icons'</span>
       </div>
     </div>
