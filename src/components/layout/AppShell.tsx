@@ -23,7 +23,8 @@ import {
   Image as ImageIcon,
   Library,
   Layers,
-  Grid
+  Grid,
+  Bookmark
 } from "lucide-react";
 
 // Sub-components to be created
@@ -40,6 +41,7 @@ import SVGIconLibraryWidget from "../widgets/SVGIconLibraryWidget";
 import HeroiconsIconLibraryWidget from "../widgets/HeroiconsIconLibraryWidget";
 import TablerIconLibraryWidget from "../widgets/TablerIconLibraryWidget";
 import PhosphorIconLibraryWidget from "../widgets/PhosphorIconLibraryWidget";
+import RadixIconLibraryWidget from "../widgets/RadixIconLibraryWidget";
 
 type TabType = "dashboard" | "communications" | "workspace" | "settings";
 
@@ -47,7 +49,7 @@ export default function AppShell() {
   const [activeTab, setActiveTab] = useState<TabType>("dashboard");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [workspaceTab, setWorkspaceTab] = useState<"trackers" | "notes" | "lucide-icons" | "svg-icons" | "heroicons" | "tabler-icons" | "phosphor-icons">("trackers");
+  const [workspaceTab, setWorkspaceTab] = useState<"trackers" | "notes" | "lucide-icons" | "svg-icons" | "heroicons" | "tabler-icons" | "phosphor-icons" | "radix-icons">("trackers");
 
   const topNavItems = [
     { id: "dashboard" as TabType, name: "Dashboard", icon: LayoutDashboard },
@@ -95,7 +97,7 @@ export default function AppShell() {
           </div>
         );
       case "workspace":
-        const getWorkspaceBtnClass = (tab: "trackers" | "notes" | "lucide-icons" | "svg-icons" | "heroicons" | "tabler-icons" | "phosphor-icons") => {
+        const getWorkspaceBtnClass = (tab: "trackers" | "notes" | "lucide-icons" | "svg-icons" | "heroicons" | "tabler-icons" | "phosphor-icons" | "radix-icons") => {
           const isActive = workspaceTab === tab;
           if (sidebarCollapsed) {
             return `flex items-center justify-center rounded-lg p-2.5 shrink-0 transition-all ${
@@ -163,6 +165,14 @@ export default function AppShell() {
             >
               <Grid className={`h-4 w-4 shrink-0 ${workspaceTab === "phosphor-icons" ? "text-white" : "text-accent"}`} />
               {!sidebarCollapsed && <span id="workspace-sidebar-phosphor-text">Phosphor Icons</span>}
+            </button>
+            <button 
+              id="workspace-sidebar-radix-btn"
+              onClick={() => setWorkspaceTab("radix-icons")}
+              className={getWorkspaceBtnClass("radix-icons")}
+            >
+              <Bookmark className={`h-4 w-4 shrink-0 ${workspaceTab === "radix-icons" ? "text-white" : "text-accent"}`} />
+              {!sidebarCollapsed && <span id="workspace-sidebar-radix-text">Radix Icons</span>}
             </button>
           </div>
         );
@@ -238,6 +248,13 @@ export default function AppShell() {
           return (
             <div className="grid grid-cols-1 gap-6" id="workspace-phosphor-grid">
               <PhosphorIconLibraryWidget />
+            </div>
+          );
+        }
+        if (workspaceTab === "radix-icons") {
+          return (
+            <div className="grid grid-cols-1 gap-6" id="workspace-radix-grid">
+              <RadixIconLibraryWidget />
             </div>
           );
         }
