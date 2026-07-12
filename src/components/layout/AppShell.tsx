@@ -20,7 +20,8 @@ import {
   User,
   LogOut,
   Sparkles,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Library
 } from "lucide-react";
 
 // Sub-components to be created
@@ -34,6 +35,7 @@ import NotesWidget from "../widgets/NotesWidget";
 import APISettings from "../widgets/APISettings";
 import LucideIconLibraryWidget from "../widgets/LucideIconLibraryWidget";
 import SVGIconLibraryWidget from "../widgets/SVGIconLibraryWidget";
+import HeroiconsIconLibraryWidget from "../widgets/HeroiconsIconLibraryWidget";
 
 type TabType = "dashboard" | "communications" | "workspace" | "settings";
 
@@ -41,7 +43,7 @@ export default function AppShell() {
   const [activeTab, setActiveTab] = useState<TabType>("dashboard");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [workspaceTab, setWorkspaceTab] = useState<"trackers" | "notes" | "lucide-icons" | "svg-icons">("trackers");
+  const [workspaceTab, setWorkspaceTab] = useState<"trackers" | "notes" | "lucide-icons" | "svg-icons" | "heroicons">("trackers");
 
   const topNavItems = [
     { id: "dashboard" as TabType, name: "Dashboard", icon: LayoutDashboard },
@@ -89,7 +91,7 @@ export default function AppShell() {
           </div>
         );
       case "workspace":
-        const getWorkspaceBtnClass = (tab: "trackers" | "notes" | "lucide-icons" | "svg-icons") => {
+        const getWorkspaceBtnClass = (tab: "trackers" | "notes" | "lucide-icons" | "svg-icons" | "heroicons") => {
           const isActive = workspaceTab === tab;
           if (sidebarCollapsed) {
             return `flex items-center justify-center rounded-lg p-2.5 shrink-0 transition-all ${
@@ -133,6 +135,14 @@ export default function AppShell() {
             >
               <ImageIcon className={`h-4 w-4 shrink-0 ${workspaceTab === "svg-icons" ? "text-white" : "text-accent"}`} />
               {!sidebarCollapsed && <span id="workspace-sidebar-svg-text">SVG Icon Library</span>}
+            </button>
+            <button 
+              id="workspace-sidebar-heroicons-btn"
+              onClick={() => setWorkspaceTab("heroicons")}
+              className={getWorkspaceBtnClass("heroicons")}
+            >
+              <Library className={`h-4 w-4 shrink-0 ${workspaceTab === "heroicons" ? "text-white" : "text-accent"}`} />
+              {!sidebarCollapsed && <span id="workspace-sidebar-heroicons-text">Heroicons Library</span>}
             </button>
           </div>
         );
@@ -187,6 +197,13 @@ export default function AppShell() {
           return (
             <div className="grid grid-cols-1 gap-6" id="workspace-svg-grid">
               <SVGIconLibraryWidget />
+            </div>
+          );
+        }
+        if (workspaceTab === "heroicons") {
+          return (
+            <div className="grid grid-cols-1 gap-6" id="workspace-heroicons-grid">
+              <HeroiconsIconLibraryWidget />
             </div>
           );
         }
