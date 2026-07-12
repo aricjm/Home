@@ -21,7 +21,9 @@ import {
   LogOut,
   Sparkles,
   Image as ImageIcon,
-  Library
+  Library,
+  Layers,
+  Grid
 } from "lucide-react";
 
 // Sub-components to be created
@@ -36,6 +38,8 @@ import APISettings from "../widgets/APISettings";
 import LucideIconLibraryWidget from "../widgets/LucideIconLibraryWidget";
 import SVGIconLibraryWidget from "../widgets/SVGIconLibraryWidget";
 import HeroiconsIconLibraryWidget from "../widgets/HeroiconsIconLibraryWidget";
+import TablerIconLibraryWidget from "../widgets/TablerIconLibraryWidget";
+import PhosphorIconLibraryWidget from "../widgets/PhosphorIconLibraryWidget";
 
 type TabType = "dashboard" | "communications" | "workspace" | "settings";
 
@@ -43,7 +47,7 @@ export default function AppShell() {
   const [activeTab, setActiveTab] = useState<TabType>("dashboard");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [workspaceTab, setWorkspaceTab] = useState<"trackers" | "notes" | "lucide-icons" | "svg-icons" | "heroicons">("trackers");
+  const [workspaceTab, setWorkspaceTab] = useState<"trackers" | "notes" | "lucide-icons" | "svg-icons" | "heroicons" | "tabler-icons" | "phosphor-icons">("trackers");
 
   const topNavItems = [
     { id: "dashboard" as TabType, name: "Dashboard", icon: LayoutDashboard },
@@ -91,7 +95,7 @@ export default function AppShell() {
           </div>
         );
       case "workspace":
-        const getWorkspaceBtnClass = (tab: "trackers" | "notes" | "lucide-icons" | "svg-icons" | "heroicons") => {
+        const getWorkspaceBtnClass = (tab: "trackers" | "notes" | "lucide-icons" | "svg-icons" | "heroicons" | "tabler-icons" | "phosphor-icons") => {
           const isActive = workspaceTab === tab;
           if (sidebarCollapsed) {
             return `flex items-center justify-center rounded-lg p-2.5 shrink-0 transition-all ${
@@ -143,6 +147,22 @@ export default function AppShell() {
             >
               <Library className={`h-4 w-4 shrink-0 ${workspaceTab === "heroicons" ? "text-white" : "text-accent"}`} />
               {!sidebarCollapsed && <span id="workspace-sidebar-heroicons-text">Heroicons Library</span>}
+            </button>
+            <button 
+              id="workspace-sidebar-tabler-btn"
+              onClick={() => setWorkspaceTab("tabler-icons")}
+              className={getWorkspaceBtnClass("tabler-icons")}
+            >
+              <Layers className={`h-4 w-4 shrink-0 ${workspaceTab === "tabler-icons" ? "text-white" : "text-accent"}`} />
+              {!sidebarCollapsed && <span id="workspace-sidebar-tabler-text">Tabler Icons</span>}
+            </button>
+            <button 
+              id="workspace-sidebar-phosphor-btn"
+              onClick={() => setWorkspaceTab("phosphor-icons")}
+              className={getWorkspaceBtnClass("phosphor-icons")}
+            >
+              <Grid className={`h-4 w-4 shrink-0 ${workspaceTab === "phosphor-icons" ? "text-white" : "text-accent"}`} />
+              {!sidebarCollapsed && <span id="workspace-sidebar-phosphor-text">Phosphor Icons</span>}
             </button>
           </div>
         );
@@ -204,6 +224,20 @@ export default function AppShell() {
           return (
             <div className="grid grid-cols-1 gap-6" id="workspace-heroicons-grid">
               <HeroiconsIconLibraryWidget />
+            </div>
+          );
+        }
+        if (workspaceTab === "tabler-icons") {
+          return (
+            <div className="grid grid-cols-1 gap-6" id="workspace-tabler-grid">
+              <TablerIconLibraryWidget />
+            </div>
+          );
+        }
+        if (workspaceTab === "phosphor-icons") {
+          return (
+            <div className="grid grid-cols-1 gap-6" id="workspace-phosphor-grid">
+              <PhosphorIconLibraryWidget />
             </div>
           );
         }
